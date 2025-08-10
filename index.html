@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mail 10 phút — Demo (1secmail)</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#60a5fa;--glass:rgba(255,255,255,0.03)}
+    html,body{height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:linear-gradient(180deg,#071021 0%, #081122 100%);color:#e6eef6}
+    .wrap{max-width:920px;margin:28px auto;padding:20px}
+    header{display:flex;gap:16px;align-items:center;margin-bottom:18px}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+    .card{background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+    button,select{background:var(--glass);border:1px solid rgba(255,255,255,0.04);color:#e6eef6;padding:8px 12px;border-radius:8px;cursor:pointer}
+    input[type="text"]{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit}
+    .emailBox{display:flex;gap:12px;align-items:center;flex:1}
+    .small{font-size:13px;color:var(--muted)}
+    .flex{display:flex;gap:12px;align-items:center}
+    .inbox{margin-top:16px;display:grid;grid-template-columns:1fr 360px;gap:14px}
+    .list{overflow:auto;max-height:60vh;padding:10px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01))}
+    .msg{padding:10px;border-radius:8px;margin-bottom:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+    .msg h4{margin:0;font-size:14px}
+    .msg p{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .viewer{padding:12px;border-radius:10px;background:linear-gradient(180deg, rgba(6,14,22,0.4), rgba(4,9,14,0.2));min-height:220px;overflow:auto}
+    .meta{font-size:13px;color:var(--muted);margin-bottom:10px}
+    .tiny{font-size:12px;color:var(--muted)}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .muted{color:var(--muted)}
+    footer{margin-top:18px;font-size:12px;color:var(--muted)}
+    .danger{color:#ffb4b4}
+    .btn-primary{background:linear-gradient(90deg,var(--accent),#3b82f6);border:none}
+    .copy-ok{color:#22c55e;font-weight:600;margin-left:8px}
+    @media(max-width:900px){.inbox{grid-template-columns:1fr;}.viewer{min-height:180px}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Mail 10 phút — Demo (1secmail)</h1>
+        <p class="lead">Tạo email tạm, xem inbox và đọc thư. Dán file này lên GitHub Pages để chạy (static).</p>
+      </div>
+    </header>
+
+    <div class="card">
+      <div class="controls">
+        <div class="emailBox">
+          <input id="emailInput" type="text" readonly placeholder="Nhấn 'Tạo email' để bắt đầu" style="min-width:220px"/>
+          <button id="btnCopy">Sao chép</button>
+          <button id="btnNew" class="btn-primary">Tạo email</button>
+          <div class="small">Hết hạn sau: <span id="countdown">—</span></div>
+        </div>
+
+        <div class="flex" style="margin-left:auto">
+          <label class="tiny muted">Tự làm mới:</label>
+          <select id="autoref" title="Tự động làm mới inbox">
+            <option value="0">Tắt</option>
+            <option value="5">5s</option>
+            <option value="15">15s</option>
+            <option value="30">30s</option>
+            <option value="60">1m</option>
+          </select>
+          <button id="btnRefresh">Làm mới</button>
+        </div>
+      </div>
+
+      <div class="inbox">
+        <div class="list" id="msgList">
+          <div class="tiny muted">Hộp thư rỗng — tạo email hoặc làm mới.</div>
+        </div>
+
+        <div>
+          <div class="viewer" id="viewer">
+            <div class="meta" id="meta">Chưa chọn thư</div>
+            <div id="content" class="muted tiny">Chọn một email từ cột bên trái để đọc nội dung.</div>
+          </div>
+        </div>
+      </div>
+
+      <footer>
+        <div class="tiny muted">Ghi chú: Dùng cho mục đích thử nghiệm. Không dùng cho thông tin nhạy cảm.</div>
+      </footer>
+    </div>
+  </div>
+
+<script>
+(function(){
+  // --- Config ---
+  const DOMAINS = ['1secmail.com','1secmail.org','1secmail.net'];
+  const EXPIRE_SECONDS = 10*60; // 10 phút
+
+  // --- Elements ---
+  const emailInput = document.getElementById('emailInput');
+  const btnNew = document.getElementById('btnNew');
+  const btnCopy = document.getElementById('btnCopy');
+  const btnRefresh = document.getElementById('btnRefresh');
+  const msgList = document.getElementById('msgList');
+  const viewer = document.getElementById('viewer');
+  const meta = document.getElementById('meta');
+  const content = document.getElementById('content');
+  const countdownEl = document.getElementById('countdown');
+  const autoref = document.getElementById('autoref');
+
+  let currentEmail = '';
+  let expireAt = 0;
+  let autoTimer = null;
+  let countdownTimer = null;
+  let savedMsgs = [];
+
+  function rndName(len=10){
+    const s = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    let r = '';
+    for(let i=0;i<len;i++) r += s[Math.floor(Math.random()*s.length)];
+    return r;
+  }
+
+  function genEmail(){
+    const name = rndName(10);
+    const domain = DOMAINS[Math.floor(Math.random()*DOMAINS.length)];
+    return `${name}@${domain}`;
+  }
+
+  function setEmail(email){
+    currentEmail = email;
+    emailInput.value = email;
+    expireAt = Date.now() + EXPIRE_SECONDS*1000;
+    startCountdown();
+    fetchInbox();
+  }
+
+  function startCountdown(){
+    stopCountdown();
+    updateCountdown();
+    countdownTimer = setInterval(updateCountdown, 1000);
+  }
+  function stopCountdown(){ if(countdownTimer) clearInterval(countdownTimer); countdownTimer = null; }
+
+  function updateCountdown(){
+    if(!expireAt){ countdownEl.textContent = '—'; return; }
+    const s = Math.floor((expireAt - Date.now())/1000);
+    if(s <= 0){
+      countdownEl.textContent = 'Đã hết hạn';
+      currentEmail = '';
+      emailInput.value = '';
+      expireAt = 0;
+      savedMsgs = [];
+      renderList();
+      stopCountdown();
+      return;
+    }
+    const mm = Math.floor(s/60);
+    const ss = s % 60;
+    countdownEl.textContent = `${mm}m ${ss}s`;
+  }
+
+  async function fetchInbox(){
+    if(!currentEmail){ renderList(); return; }
+    const [login, domain] = currentEmail.split('@');
+    const url = `https://www.1secmail.com/api/v1/?action=getMessages&login=${encodeURIComponent(login)}&domain=${encodeURIComponent(domain)}`;
+    try {
+      msgList.innerHTML = '<div class="tiny muted">Đang tải...</div>';
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('Không lấy được inbox');
+      const data = await res.json();
+      savedMsgs = Array.isArray(data) ? data : [];
+      renderList();
+    } catch (e){
+      console.error(e);
+      msgList.innerHTML = '<div class="tiny danger">Lỗi khi lấy inbox — có thể API chặn CORS hoặc mạng.</div>';
+    }
+  }
+
+  function renderList(){
+    if(!currentEmail){
+      msgList.innerHTML = '<div class="tiny muted">Chưa có email. Nhấn "Tạo email" để bắt đầu.</div>';
+      meta.textContent = 'Chưa chọn thư';
+      content.textContent = 'Chọn một email từ cột bên trái để đọc nội dung.';
+      return;
+    }
+    if(!savedMsgs || savedMsgs.length === 0){
+      msgList.innerHTML = `<div class="tiny muted">Hộp thư trống. Hãy gửi 1 email tới <strong>${currentEmail}</strong> rồi nhấn làm mới.</div>`;
+      meta.textContent = `Hộp thư: ${currentEmail}`;
+      content.textContent = 'Chưa có thư để đọc.';
+      return;
+    }
+    msgList.innerHTML = '';
+    savedMsgs.sort((a,b)=>b.date.localeCompare(a.date));
+    savedMsgs.forEach(m=>{
+      const div = document.createElement('div');
+      div.className = 'msg';
+      div.innerHTML = `<h4>${escapeHtml(m.from || '(không rõ)')} — <span class="tiny muted">${escapeHtml(m.subject||'(No subject)')}</span></h4>
+                       <p class="tiny muted">${escapeHtml(m.date)} · ID:${m.id}</p>`;
+      div.onclick = ()=> readMessage(m.id);
+      msgList.appendChild(div);
+    });
+  }
+
+  async function readMessage(id){
+    if(!currentEmail) return;
+    meta.textContent = 'Đang tải thư...';
+    content.textContent = '';
+    const [login, domain] = currentEmail.split('@');
+    const url = `https://www.1secmail.com/api/v1/?action=readMessage&login=${encodeURIComponent(login)}&domain=${encodeURIComponent(domain)}&id=${encodeURIComponent(id)}`;
+    try {
+      const res = await fetch(url);
+      if(!res.ok) throw new Error('Không đọc được thư');
+      const m = await res.json();
+      meta.innerHTML = `<strong>From:</strong> ${escapeHtml(m.from||'')}<br>
+                        <strong>To:</strong> ${escapeHtml(m.to||'')} · <span class="tiny muted">ID:${m.id}</span><br>
+                        <span class="tiny muted">${escapeHtml(m.date||'')}</span>`;
+      // body can be HTML - show safely
+      if(m.htmlBody){
+        content.innerHTML = m.htmlBody;
+      } else {
+        content.textContent = m.textBody || '(Không có nội dung)';
+      }
+    } catch (e){
+      console.error(e);
+      meta.textContent = 'Lỗi khi đọc thư — có thể API chặn CORS.';
+      content.textContent = '';
+    }
+  }
+
+  // Helpers
+  function escapeHtml(s){
+    if(!s) return '';
+    return String(s)
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;')
+      .replace(/'/g,'&#39;');
+  }
+
+  // Events
+  btnNew.addEventListener('click', ()=>{
+    const e = genEmail();
+    setEmail(e);
+    // focus and auto-copy
+    try { navigator.clipboard.writeText(e); showCopyOK(); } catch(e){}
+  });
+
+  btnCopy.addEventListener('click', ()=>{
+    if(!currentEmail) return;
+    navigator.clipboard.writeText(currentEmail).then(showCopyOK, ()=>alert('Không copy được'));
+  });
+
+  function showCopyOK(){
+    const el = document.createElement('span');
+    el.className = 'copy-ok';
+    el.textContent = 'Đã sao chép';
+    btnCopy.parentNode.insertBefore(el, btnCopy.nextSibling);
+    setTimeout(()=> el.remove(),1500);
+  }
+
+  btnRefresh.addEventListener('click', fetchInbox);
+
+  autoref.addEventListener('change', ()=>{
+    if(autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+    const v = Number(autoref.value);
+    if(v>0 && currentEmail){
+      autoTimer = setInterval(fetchInbox, v*1000);
+    }
+  });
+
+  // Auto stop when page hidden
+  document.addEventListener('visibilitychange', ()=>{
+    if(document.hidden && autoTimer){ clearInterval(autoTimer); autoTimer = null; }
+  });
+
+  // Init: try to generate one right away for convenience
+  // Commented out — leave for user to click create
+  // setEmail(genEmail());
+
+  // expose for debugging
+  window.tempMail = { setEmail, fetchInbox, readMessage, genEmail };
+})();
+</script>
+</body>
+</html>
