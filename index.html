@@ -1,82 +1,479 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Email tạm thời</title>
-    <style>
-        body { font-family: Arial; background: #f4f4f4; text-align: center; padding: 20px; }
-        .email-box { background: white; padding: 10px; border-radius: 8px; display: inline-block; }
-        .inbox { margin-top: 20px; text-align: left; display: inline-block; width: 80%; }
-        .mail { background: white; padding: 10px; margin-top: 10px; border-radius: 5px; }
-    </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Mail 10 phút — Demo (mail.tm)</title>
+<link rel="icon" href="data:,">
+<style>
+  :root{
+    --bg:#0b1220;
+    --card:#0f1724;
+    --muted:#9aa4b2;
+    --accent:#3b82f6;
+    --glass: rgba(255,255,255,0.03);
+    --success:#22c55e;
+    --danger:#ff6b6b;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#071021 0%,#041022 100%);color:#e6eef6}
+  .wrap{max-width:1100px;margin:26px auto;padding:18px}
+  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  h1{font-size:20px;margin:0}
+  p.lead{margin:0;color:var(--muted);font-size:13px}
+  .top-card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:14px;border-radius:12px;display:flex;gap:12px;align-items:center}
+  .email-box{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 10px;border-radius:8px;color:inherit;min-width:260px}
+  button{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;color:inherit;cursor:pointer}
+  .btn-primary{background:linear-gradient(90deg,var(--accent),#60a5fa);border:none}
+  .btn-danger{background:linear-gradient(90deg,var(--danger),#ff7b7b);border:none}
+  .small{font-size:13px;color:var(--muted)}
+  .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .layout{display:grid;grid-template-columns:360px 1fr;gap:14px;margin-top:16px}
+  .panel{background:var(--card);padding:12px;border-radius:12px;min-height:360px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
+  .inbox-list{max-height:64vh;overflow:auto;padding-right:6px}
+  .msg{padding:10px;border-radius:10px;margin-bottom:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
+  .msg:hover{background:rgba(255,255,255,0.01)}
+  .msg.active{background:linear-gradient(90deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));border-color:rgba(59,130,246,0.18)}
+  .msg h4{margin:0;font-size:14px}
+  .msg p{margin:6px 0 0;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .viewer{display:flex;flex-direction:column;gap:8px;height:64vh}
+  .meta{font-size:13px;color:var(--muted)}
+  .body{flex:1;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;overflow:auto}
+  pre{white-space:pre-wrap;word-wrap:break-word;font-family:inherit}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .tiny{font-size:12px;color:var(--muted)}
+  footer{margin-top:12px;font-size:12px;color:var(--muted)}
+  .badge{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:8px;font-size:13px}
+  .flex-between{display:flex;justify-content:space-between;align-items:center;gap:8px}
+  @media(max-width:980px){
+    .layout{grid-template-columns:1fr;}.controls{margin-left:0}
+    .email-box input{min-width:160px}
+    .viewer{height:48vh}.inbox-list{max-height:48vh}
+  }
+</style>
 </head>
 <body>
-    <h1>📧 Email Tạm Thời</h1>
-    <div class="email-box">
-        <b>Email của bạn:</b> <span id="email">Đang tạo...</span>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>Mail 10 phút — mail.tm (Demo)</h1>
+        <p class="lead">Email tạm — tự tạo, lưu local, tự đổi sau 10 phút. Không cần server.</p>
+      </div>
+    </header>
+
+    <div class="top-card">
+      <div class="email-box">
+        <input id="emailInput" type="text" readonly placeholder="Nhấn 'Tạo mới' để tạo email" />
+        <button id="btnCopy">Sao chép</button>
+        <button id="btnNew" class="btn-primary">Tạo mới</button>
+        <div class="small">Hết hạn trong <span id="countdown">—</span></div>
+      </div>
+
+      <div class="controls">
+        <div class="row">
+          <label class="tiny">Auto refresh</label>
+          <select id="autoRef" title="Tự động lấy inbox">
+            <option value="0">Tắt</option>
+            <option value="5">5s</option>
+            <option value="10" selected>10s</option>
+            <option value="30">30s</option>
+            <option value="60">60s</option>
+          </select>
+        </div>
+        <div class="row">
+          <button id="btnRefresh">Làm mới</button>
+          <button id="btnForceNew" class="btn-danger">Force mới</button>
+        </div>
+      </div>
     </div>
-    <div class="inbox" id="inbox">
-        <h3>📥 Hộp thư đến</h3>
-        <div id="messages">Chưa có thư...</div>
+
+    <div class="layout">
+      <div class="panel">
+        <div class="flex-between">
+          <div class="row"><div class="badge">Hộp thư</div><div class="tiny" id="emailStatus">—</div></div>
+          <div class="tiny">Số thư: <span id="countNum">0</span></div>
+        </div>
+        <hr style="border:none;height:8px;margin:8px 0;background:transparent" />
+        <div class="inbox-list" id="msgList">
+          <div class="tiny" id="emptyHint">Chưa có thư — gửi mail vào địa chỉ của bạn rồi nhấn "Làm mới".</div>
+        </div>
+      </div>
+
+      <div class="panel viewer">
+        <div>
+          <div class="meta" id="meta">Chưa chọn thư</div>
+          <div class="row" style="margin-top:8px;gap:6px">
+            <button id="btnOpenRaw">Xem raw</button>
+            <button id="btnOpenIframe">Xem HTML (safe)</button>
+          </div>
+        </div>
+        <div class="body" id="content">
+          <div class="tiny muted">Chọn 1 thư để xem nội dung</div>
+        </div>
+      </div>
     </div>
 
-    <script>
-        const API = "https://api.mail.tm";
-        let token = "";
-        let userId = "";
+    <footer>
+      <div class="tiny">Lưu ý: demo dùng <strong>mail.tm</strong>. API có thể giới hạn request. Không dùng cho thông tin quan trọng.</div>
+    </footer>
+  </div>
 
-        async function createEmail() {
-            let name = Math.random().toString(36).substring(2,10);
-            let domainRes = await fetch(`${API}/domains`);
-            let domainData = await domainRes.json();
-            let domain = domainData["hydra:member"][0].domain;
+<script>
+/*
+  Mail 10 phút - single file
+  - Dùng mail.tm API
+  - Lưu local: {address,password,createdAt,expiresAt,token}
+  - Tự tạo mới sau EXPIRE_MS
+  - Auto-refresh inbox
+  - Hiển thị mail HTML trong iframe (sandbox, no scripts)
+*/
 
-            let email = `${name}@${domain}`;
-            let password = Math.random().toString(36);
+const API = 'https://api.mail.tm';
+const EXPIRE_MS = 10 * 60 * 1000; // 10 phút
+const LS_KEY = 'temp_mail_tm_v1';
 
-            await fetch(`${API}/accounts`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ address: email, password: password })
-            });
+const el = {
+  emailInput: document.getElementById('emailInput'),
+  btnCopy: document.getElementById('btnCopy'),
+  btnNew: document.getElementById('btnNew'),
+  btnForceNew: document.getElementById('btnForceNew'),
+  btnRefresh: document.getElementById('btnRefresh'),
+  autoRef: document.getElementById('autoRef'),
+  countdown: document.getElementById('countdown'),
+  msgList: document.getElementById('msgList'),
+  content: document.getElementById('content'),
+  meta: document.getElementById('meta'),
+  countNum: document.getElementById('countNum'),
+  emailStatus: document.getElementById('emailStatus'),
+  btnOpenRaw: document.getElementById('btnOpenRaw'),
+  btnOpenIframe: document.getElementById('btnOpenIframe'),
+  emptyHint: document.getElementById('emptyHint'),
+};
 
-            let loginRes = await fetch(`${API}/token`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ address: email, password: password })
-            });
-            let loginData = await loginRes.json();
-            token = loginData.token;
+let state = {
+  address: '',
+  password: '',
+  token: '',
+  createdAt: 0,
+  expiresAt: 0,
+  messages: [],
+  selectedId: null
+};
 
-            let meRes = await fetch(`${API}/me`, { headers: { Authorization: `Bearer ${token}` }});
-            let meData = await meRes.json();
-            userId = meData.id;
+let timers = {
+  countdown: null,
+  autoRefresh: null
+};
 
-            document.getElementById("email").textContent = email;
-            fetchInbox();
-            setInterval(fetchInbox, 5000);
-        }
+function saveState(){
+  localStorage.setItem(LS_KEY, JSON.stringify({
+    address: state.address,
+    password: state.password,
+    token: state.token,
+    createdAt: state.createdAt,
+    expiresAt: state.expiresAt
+  }));
+}
 
-        async function fetchInbox() {
-            let msgRes = await fetch(`${API}/messages`, { headers: { Authorization: `Bearer ${token}` }});
-            let msgData = await msgRes.json();
-            let box = document.getElementById("messages");
-            box.innerHTML = "";
-            if (msgData["hydra:member"].length === 0) {
-                box.innerHTML = "Chưa có thư...";
-                return;
-            }
-            msgData["hydra:member"].forEach(mail => {
-                let div = document.createElement("div");
-                div.className = "mail";
-                div.innerHTML = `<b>Từ:</b> ${mail.from.address}<br>
-                                 <b>Chủ đề:</b> ${mail.subject}<br>
-                                 <pre>${mail.intro}</pre>`;
-                box.appendChild(div);
-            });
-        }
+function loadState(){
+  const raw = localStorage.getItem(LS_KEY);
+  if(!raw) return false;
+  try{
+    const s = JSON.parse(raw);
+    if(s && s.address && s.password && s.createdAt && s.expiresAt){
+      state.address = s.address;
+      state.password = s.password;
+      state.token = s.token || '';
+      state.createdAt = s.createdAt;
+      state.expiresAt = s.expiresAt;
+      return true;
+    }
+  }catch(e){ console.warn('ls parse error', e) }
+  return false;
+}
 
-        createEmail();
-    </script>
+function clearState(){
+  localStorage.removeItem(LS_KEY);
+  state = { address:'', password:'', token:'', createdAt:0, expiresAt:0, messages:[], selectedId:null };
+  renderEmailEmpty();
+}
+
+function renderEmail(){
+  el.emailInput.value = state.address || '';
+  el.emailStatus.textContent = state.address ? `Tạo: ${new Date(state.createdAt).toLocaleTimeString()} ` : '—';
+  startCountdown();
+}
+
+function renderEmailEmpty(){
+  el.emailInput.value = '';
+  el.emailStatus.textContent = '—';
+  el.countdown.textContent = '—';
+  stopCountdown();
+  state.messages = [];
+  renderList();
+  el.content.innerHTML = '<div class="tiny">Chưa có email</div>';
+  el.countNum.textContent = '0';
+}
+
+function startCountdown(){
+  stopCountdown();
+  function tick(){
+    if(!state.expiresAt){ el.countdown.textContent = '—'; return; }
+    const rem = state.expiresAt - Date.now();
+    if(rem <= 0){
+      el.countdown.textContent = 'Đã hết hạn';
+      // auto-generate new
+      createOrRenew(true);
+      return;
+    }
+    const mm = Math.floor(rem/60000);
+    const ss = Math.floor((rem%60000)/1000);
+    el.countdown.textContent = `${mm}m ${ss}s`;
+  }
+  tick();
+  timers.countdown = setInterval(tick, 1000);
+}
+
+function stopCountdown(){ if(timers.countdown){ clearInterval(timers.countdown); timers.countdown=null; } }
+
+async function apiFetch(path, opts = {}){
+  try{
+    const r = await fetch(API + path, opts);
+    if(!r.ok) {
+      const txt = await r.text().catch(()=>'');
+      const err = new Error('API lỗi: ' + r.status + ' ' + txt);
+      err.status = r.status;
+      throw err;
+    }
+    return await r.json();
+  }catch(e){
+    throw e;
+  }
+}
+
+async function createAccountAttempt(){
+  // get domain
+  const dom = await apiFetch('/domains');
+  const domain = dom['hydra:member'] && dom['hydra:member'][0] && dom['hydra:member'][0].domain;
+  if(!domain) throw new Error('Không lấy được domain mail.tm');
+  const name = 'u' + Math.random().toString(36).slice(2,10);
+  const address = `${name}@${domain}`;
+  const password = 'p' + Math.random().toString(36).slice(2,12);
+  // try create
+  try{
+    await apiFetch('/accounts', {
+      method:'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({address, password})
+    });
+  }catch(e){
+    // if 422 or 409, ignore and try login anyway
+    if(e.status && (e.status === 422 || e.status === 409)){
+      // continue to token request
+    } else {
+      // other error -> rethrow
+      console.warn('create account error', e);
+      throw e;
+    }
+  }
+  // get token
+  const tokenRes = await apiFetch('/token', {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({address, password})
+  });
+  return { address, password, token: tokenRes.token };
+}
+
+async function createOrRenew(force=false){
+  // if existing and not expired and not force -> keep
+  if(!force && state.address && state.expiresAt > Date.now()){
+    console.log('still valid, skipping create');
+    return;
+  }
+  try{
+    const acc = await createAccountAttempt();
+    state.address = acc.address;
+    state.password = acc.password;
+    state.token = acc.token;
+    state.createdAt = Date.now();
+    state.expiresAt = Date.now() + EXPIRE_MS;
+    saveState();
+    renderEmail();
+    await fetchInbox();
+    return true;
+  }catch(e){
+    console.error('Tạo tài khoản lỗi:', e);
+    alert('Không tạo được email mới. Kiểm tra kết nối hoặc API bị giới hạn.');
+    return false;
+  }
+}
+
+async function ensureToken(){
+  // If token empty try to login using stored password
+  if(state.token) return true;
+  if(!state.address || !state.password) return false;
+  try{
+    const tokenRes = await apiFetch('/token', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({address: state.address, password: state.password})
+    });
+    state.token = tokenRes.token;
+    saveState();
+    return true;
+  }catch(e){
+    console.warn('re-login failed', e);
+    return false;
+  }
+}
+
+async function fetchInbox(){
+  if(!state.address) return;
+  const ok = await ensureToken();
+  if(!ok) { console.warn('token not available'); return; }
+  try{
+    const msgs = await apiFetch('/messages', { headers: { Authorization: 'Bearer ' + state.token }});
+    state.messages = msgs['hydra:member'] || [];
+    renderList();
+  }catch(e){
+    console.error('fetchInbox error', e);
+    // try re-login once
+    const relog = await ensureToken();
+    if(relog) return fetchInbox();
+    el.msgList.innerHTML = `<div class="tiny">Lỗi khi lấy inbox: ${e.message}</div>`;
+  }
+}
+
+function renderList(){
+  const list = state.messages.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+  el.msgList.innerHTML = '';
+  if(list.length === 0){
+    el.emptyHint.style.display = 'block';
+    el.countNum.textContent = '0';
+    return;
+  }
+  el.emptyHint.style.display = 'none';
+  el.countNum.textContent = String(list.length);
+  list.forEach(m=>{
+    const div = document.createElement('div');
+    div.className = 'msg' + (state.selectedId === m.id ? ' active' : '');
+    div.innerHTML = `<h4>${escapeHtml(m.from && m.from.address ? m.from.address : '(unknown)')} <span class="tiny" style="margin-left:8px;color:var(--muted)">${escapeHtml(m.subject||'(No subject)')}</span></h4>
+                     <p class="tiny">${escapeHtml(m.intro || '')} <span class="tiny" style="float:right;color:var(--muted)">ID:${m.id}</span></p>`;
+    div.onclick = ()=> selectMessage(m.id);
+    el.msgList.appendChild(div);
+  });
+}
+
+async function selectMessage(id){
+  state.selectedId = id;
+  renderList(); // highlight
+  // fetch read endpoint
+  try{
+    const m = await apiFetch(`/messages/${id}`, { headers: { Authorization: 'Bearer ' + state.token }});
+    showMessage(m);
+  }catch(e){
+    console.error('read msg error', e);
+    el.content.innerHTML = `<div class="tiny">Lỗi khi đọc thư: ${e.message}</div>`;
+  }
+}
+
+function showMessage(m){
+  el.meta.innerHTML = `<strong>From:</strong> ${escapeHtml(m.from && m.from.address)} &nbsp; <strong>To:</strong> ${escapeHtml(m.to && m.to.address)} <br>
+                      <span class="tiny">${escapeHtml(new Date(m.createdAt).toLocaleString())} · ID:${m.id}</span>`;
+  // Clear content area
+  el.content.innerHTML = '';
+  // If htmlBody exists, render iframe sandboxed to avoid executing scripts
+  if(m.html){
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.minHeight = '220px';
+    iframe.style.border = 'none';
+    // sandbox deny scripts -- allow styling/images; remove "allow-scripts" for safety
+    iframe.setAttribute('sandbox', '');
+    // use srcdoc to put html content
+    // small sanitization: remove <script> tags
+    const safeHtml = String(m.html).replace(/<script[\s\S]*?<\/script>/gi, '');
+    iframe.srcdoc = safeHtml;
+    el.content.appendChild(iframe);
+  } else {
+    // fallback to text body
+    const pre = document.createElement('pre');
+    pre.textContent = m.text || '(No content)';
+    el.content.appendChild(pre);
+  }
+}
+
+function escapeHtml(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// Event handlers
+el.btnNew.addEventListener('click', ()=> createOrRenew(true));
+el.btnForceNew.addEventListener('click', ()=>{
+  if(confirm('Force tạo email mới — email hiện tại (nếu có) sẽ không còn dùng được nữa. Tiếp tục?')){
+    clearState();
+    createOrRenew(true);
+  }
+});
+el.btnCopy.addEventListener('click', ()=>{
+  if(!state.address) return alert('Chưa có email');
+  navigator.clipboard.writeText(state.address).then(()=> {
+    const t = document.createElement('span'); t.textContent='Đã sao chép'; t.style.color='var(--success)'; t.style.marginLeft='8px';
+    el.btnCopy.parentNode.insertBefore(t, el.btnCopy.nextSibling);
+    setTimeout(()=>t.remove(),1500);
+  });
+});
+el.btnRefresh.addEventListener('click', ()=> fetchInbox());
+el.autoRef.addEventListener('change', ()=>{
+  const v = Number(el.autoRef.value);
+  if(timers.autoRefresh){ clearInterval(timers.autoRefresh); timers.autoRefresh=null; }
+  if(v > 0){
+    timers.autoRefresh = setInterval(()=> {
+      // only fetch if email exists
+      if(state.address) fetchInbox();
+    }, v*1000);
+  }
+});
+
+// Open raw text or iframe of selected message
+el.btnOpenRaw.addEventListener('click', ()=>{
+  if(!state.selectedId) return alert('Chưa chọn thư');
+  // open raw json in new tab
+  window.open(`${API}/messages/${state.selectedId}`, '_blank');
+});
+el.btnOpenIframe.addEventListener('click', ()=>{
+  if(!state.selectedId) return alert('Chưa chọn thư');
+  // re-select to render again (iframe)
+  selectMessage(state.selectedId);
+});
+
+// init
+(async function init(){
+  const ok = loadState();
+  if(ok){
+    // if expired -> create new
+    if(state.expiresAt <= Date.now()){
+      // expired: create new
+      await createOrRenew(true);
+    } else {
+      // try to re-login to refresh token if missing
+      await ensureToken();
+      renderEmail();
+      await fetchInbox();
+    }
+  } else {
+    // no stored -> create new account
+    await createOrRenew(true);
+  }
+
+  // set autoRef default (value already set in DOM)
+  const v = Number(el.autoRef.value);
+  if(v>0){
+    timers.autoRefresh = setInterval(()=> { if(state.address) fetchInbox(); }, v*1000);
+  }
+
+})();
+</script>
 </body>
 </html>
