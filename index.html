@@ -130,7 +130,7 @@
   <div class="max-w-7xl mx-auto">
     <header class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 md:mb-8">
       <div>
-        <!-- Cập nhật tiêu đề: xóa "- mail.tm" -->
+        <!-- Tiêu đề và mô tả ứng dụng -->
         <h1 id="h1_title" class="text-2xl font-bold text-white">Mail 10 phút (Demo)</h1>
         <p id="p_description" class="text-sm text-muted-text mt-1">Email tạm — tự tạo, lưu local, tự đổi sau 10 phút. Không cần server.</p>
       </div>
@@ -146,7 +146,6 @@
           </label>
         </div>
         <div class="flex items-center gap-2">
-          <!-- Đã thêm id="lang-label" vào đây -->
           <label id="lang-label" class="text-sm text-muted-text">Ngôn ngữ</label>
           <select id="langSelector" class="bg-card-dark border border-gray-700 text-white rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent">
             <option value="vi">Tiếng Việt</option>
@@ -230,7 +229,7 @@
       </div>
     </div>
 
-    <!-- Cập nhật footer theo yêu cầu của bạn -->
+    <!-- Footer đã được cập nhật -->
     <footer class="mt-6 text-center text-xs text-muted-text space-y-1">
       <div>
         <span id="footer-contact">Mail: trannguyen200829@gmail.com</span> <span id="footer-note">(Liên hệ nếu lỗi)</span>
@@ -279,6 +278,8 @@ const translations = {
     alert_copied: 'Đã sao chép',
     alert_error_title: 'Lỗi',
     alert_error_msg: 'Không tạo được email mới. Vui lòng kiểm tra kết nối hoặc API bị giới hạn.',
+    alert_title_info: 'Thông báo',
+    alert_close: 'Đóng',
     confirm_title: 'Xác nhận',
     confirm_msg: 'Force tạo email mới — email hiện tại (nếu có) sẽ không còn dùng được nữa. Tiếp tục?',
     confirm_cancel: 'Hủy',
@@ -314,6 +315,8 @@ const translations = {
     alert_copied: 'Copied!',
     alert_error_title: 'Error',
     alert_error_msg: 'Could not create new email. Please check your connection or if the API is limited.',
+    alert_title_info: 'Notice',
+    alert_close: 'Close',
     confirm_title: 'Confirmation',
     confirm_msg: 'Forcing a new email will make the current email unusable. Continue?',
     confirm_cancel: 'Cancel',
@@ -349,6 +352,8 @@ const translations = {
     alert_copied: 'コピーしました！',
     alert_error_title: 'エラー',
     alert_error_msg: '新しいメールを作成できませんでした。接続を確認するか、APIが制限されているか確認してください。',
+    alert_title_info: 'お知らせ',
+    alert_close: '閉じる',
     confirm_title: '確認',
     confirm_msg: '新しいメールを強制作成すると、現在のメールは使用できなくなります。続行しますか？',
     confirm_cancel: 'キャンセル',
@@ -384,6 +389,8 @@ const translations = {
     alert_copied: 'Скопировано!',
     alert_error_title: 'Ошибка',
     alert_error_msg: 'Не удалось создать новый email. Пожалуйста, проверьте ваше соединение или лимиты API.',
+    alert_title_info: 'Уведомление',
+    alert_close: 'Закрыть',
     confirm_title: 'Подтверждение',
     confirm_msg: 'Принудительное создание нового email сделает текущий email непригодным для использования. Продолжить?',
     confirm_cancel: 'Отмена',
@@ -419,6 +426,8 @@ const translations = {
     alert_copied: 'Copié!',
     alert_error_title: 'Erreur',
     alert_error_msg: "Impossible de créer un nouvel email. Veuillez vérifier votre connexion ou si l'API est limitée.",
+    alert_title_info: 'Notification',
+    alert_close: 'Fermer',
     confirm_title: 'Confirmation',
     confirm_msg: "Forcer un nouvel email rendra l'email actuel inutilisable. Continuer?",
     confirm_cancel: 'Annuler',
@@ -454,6 +463,8 @@ const translations = {
     alert_copied: '복사되었습니다!',
     alert_error_title: '오류',
     alert_error_msg: '새 이메일을 만들 수 없습니다. 연결 상태를 확인하거나 API 제한을 확인하세요.',
+    alert_title_info: '알림',
+    alert_close: '닫기',
     confirm_title: '확인',
     confirm_msg: '강제로 새 이메일을 만들면 현재 이메일은 사용할 수 없게 됩니다. 계속하시겠습니까?',
     confirm_cancel: '취소',
@@ -489,6 +500,8 @@ const translations = {
     alert_copied: '已复制！',
     alert_error_title: '错误',
     alert_error_msg: '无法创建新邮箱。请检查您的网络连接或API是否受限。',
+    alert_title_info: '通知',
+    alert_close: '关闭',
     confirm_title: '确认',
     confirm_msg: '强制创建新邮箱将使当前邮箱无法使用。继续吗？',
     confirm_cancel: '取消',
@@ -524,6 +537,8 @@ const translations = {
     alert_copied: 'कॉपी किया गया!',
     alert_error_title: 'त्रुटि',
     alert_error_msg: 'नया ईमेल नहीं बना सका। कृपया अपना कनेक्शन या एपीआई सीमा जांचें।',
+    alert_title_info: 'सूचना',
+    alert_close: 'बंद करें',
     confirm_title: 'पुष्टि',
     confirm_msg: 'जबरदस्ती नया ईमेल बनाने से वर्तमान ईमेल अनुपयोगी हो जाएगा। जारी रखें?',
     confirm_cancel: 'रद्द करें',
@@ -559,6 +574,8 @@ const translations = {
     alert_copied: 'تم النسخ!',
     alert_error_title: 'خطأ',
     alert_error_msg: 'لا يمكن إنشاء بريد إلكتروني جديد. يرجى التحقق من اتصالك أو قيود API.',
+    alert_title_info: 'إشعار',
+    alert_close: 'إغلاق',
     confirm_title: 'تأكيد',
     confirm_msg: 'فرض إنشاء بريد إلكتروني جديد سيجعل البريد الحالي غير صالح للاستخدام. هل تريد المتابعة؟',
     confirm_cancel: 'إلغاء',
@@ -594,6 +611,8 @@ const translations = {
     alert_copied: '¡Copiado!',
     alert_error_title: 'Error',
     alert_error_msg: 'No se pudo crear un nuevo correo electrónico. Por favor, verifica tu conexión o si la API está limitada.',
+    alert_title_info: 'Aviso',
+    alert_close: 'Cerrar',
     confirm_title: 'Confirmación',
     confirm_msg: 'Forzar un nuevo correo electrónico hará que el correo actual sea inutilizable. ¿Continuar?',
     confirm_cancel: 'Cancelar',
@@ -636,7 +655,7 @@ const el = {
   themeToggle: document.getElementById('theme-toggle'),
   langSelector: document.getElementById('langSelector'),
   langLabel: document.getElementById('lang-label'),
-  // Thêm các phần tử footer mới
+  // Các phần tử footer
   footerContactText: document.getElementById('footer-contact'),
   footerContactNote: document.getElementById('footer-note'),
   footerWarning: document.getElementById('footer-warning'),
@@ -840,7 +859,7 @@ async function createOrRenew(force=false){
       <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
         <h3 class="text-lg font-bold mb-2">${t.alert_error_title}</h3>
         <p class="text-sm">${escapeHtml(t.alert_error_msg)}</p>
-        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
+        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">${t.alert_close}</button>
       </div>
     `;
     document.body.appendChild(customAlert);
@@ -992,9 +1011,9 @@ el.btnCopy.addEventListener('click', ()=>{
     customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
     customAlert.innerHTML = `
       <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
-        <h3 class="text-lg font-bold mb-2">Thông báo</h3>
+        <h3 class="text-lg font-bold mb-2">${t.alert_title_info}</h3>
         <p class="text-sm">${t.alert_no_email}</p>
-        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
+        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">${t.alert_close}</button>
       </div>
     `;
     document.body.appendChild(customAlert);
@@ -1034,9 +1053,9 @@ el.btnOpenRaw.addEventListener('click', ()=>{
     customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
     customAlert.innerHTML = `
       <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
-        <h3 class="text-lg font-bold mb-2">Thông báo</h3>
+        <h3 class="text-lg font-bold mb-2">${t.alert_title_info}</h3>
         <p class="text-sm">${t.meta_hint}</p>
-        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
+        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">${t.alert_close}</button>
       </div>
     `;
     document.body.appendChild(customAlert);
@@ -1051,9 +1070,9 @@ el.btnOpenIframe.addEventListener('click', ()=>{
     customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
     customAlert.innerHTML = `
       <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
-        <h3 class="text-lg font-bold mb-2">Thông báo</h3>
+        <h3 class="text-lg font-bold mb-2">${t.alert_title_info}</h3>
         <p class="text-sm">${t.meta_hint}</p>
-        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
+        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">${t.alert_close}</button>
       </div>
     `;
     document.body.appendChild(customAlert);
