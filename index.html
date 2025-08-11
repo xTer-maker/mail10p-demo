@@ -2,78 +2,98 @@
 <html lang="vi">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Mail 10 phút — Demo (mail.tm)</title>
 <link rel="icon" href="data:,">
-<style>
-  :root{
-    --bg:#0b1220;
-    --card:#0f1724;
-    --muted:#9aa4b2;
-    --accent:#3b82f6;
-    --glass: rgba(255,255,255,0.03);
-    --success:#22c55e;
-    --danger:#ff6b6b;
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Tải Tailwind CSS để tạo giao diện hiện đại, dễ tùy chỉnh và có tính đáp ứng (responsive) -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        fontFamily: {
+          sans: ['Inter', 'system-ui', 'Segoe UI', 'Roboto', 'Arial']
+        },
+        colors: {
+          'bg-dark': '#0b1220',
+          'card-dark': '#0f1724',
+          'muted-text': '#9aa4b2',
+          'accent': '#3b82f6',
+          'glass': 'rgba(255, 255, 255, 0.03)',
+          'success': '#22c55e',
+          'danger': '#ef4444',
+          'primary-gradient': 'linear-gradient(90deg, #3b82f6, #60a5fa)',
+          'danger-gradient': 'linear-gradient(90deg, #ef4444, #f87171)',
+        }
+      }
+    }
   }
-  *{box-sizing:border-box}
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#071021 0%,#041022 100%);color:#e6eef6}
-  .wrap{max-width:1100px;margin:26px auto;padding:18px}
-  header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-  h1{font-size:20px;margin:0}
-  p.lead{margin:0;color:var(--muted);font-size:13px}
-  .top-card{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:14px;border-radius:12px;display:flex;gap:12px;align-items:center}
-  .email-box{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  input[type="text"]{background:transparent;border:1px solid rgba(255,255,255,0.04);padding:8px 10px;border-radius:8px;color:inherit;min-width:260px}
-  button{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:8px;color:inherit;cursor:pointer}
-  .btn-primary{background:linear-gradient(90deg,var(--accent),#60a5fa);border:none}
-  .btn-danger{background:linear-gradient(90deg,var(--danger),#ff7b7b);border:none}
-  .small{font-size:13px;color:var(--muted)}
-  .controls{margin-left:auto;display:flex;gap:8px;align-items:center}
-  .layout{display:grid;grid-template-columns:360px 1fr;gap:14px;margin-top:16px}
-  .panel{background:var(--card);padding:12px;border-radius:12px;min-height:360px;box-shadow:0 6px 18px rgba(2,6,23,0.6)}
-  .inbox-list{max-height:64vh;overflow:auto;padding-right:6px}
-  .msg{padding:10px;border-radius:10px;margin-bottom:8px;background:transparent;border:1px solid rgba(255,255,255,0.02);cursor:pointer}
-  .msg:hover{background:rgba(255,255,255,0.01)}
-  .msg.active{background:linear-gradient(90deg, rgba(59,130,246,0.12), rgba(59,130,246,0.06));border-color:rgba(59,130,246,0.18)}
-  .msg h4{margin:0;font-size:14px}
-  .msg p{margin:6px 0 0;color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .viewer{display:flex;flex-direction:column;gap:8px;height:64vh}
-  .meta{font-size:13px;color:var(--muted)}
-  .body{flex:1;background:rgba(255,255,255,0.02);padding:12px;border-radius:10px;overflow:auto}
-  pre{white-space:pre-wrap;word-wrap:break-word;font-family:inherit}
-  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .tiny{font-size:12px;color:var(--muted)}
-  footer{margin-top:12px;font-size:12px;color:var(--muted)}
-  .badge{background:rgba(255,255,255,0.02);padding:6px 8px;border-radius:8px;font-size:13px}
-  .flex-between{display:flex;justify-content:space-between;align-items:center;gap:8px}
-  @media(max-width:980px){
-    .layout{grid-template-columns:1fr;}.controls{margin-left:0}
-    .email-box input{min-width:160px}
-    .viewer{height:48vh}.inbox-list{max-height:48vh}
+</script>
+<style>
+  /* Thiết lập font và màu nền */
+  body {
+    background: linear-gradient(180deg, #071021 0%, #041022 100%);
+    color: #e6eef6;
+    min-height: 100vh;
+    font-family: 'Inter', system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+  }
+  /* Cải thiện thanh cuộn cho các khu vực cuộn */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+  }
+  /* Thiết lập kiểu nút với gradient tùy chỉnh */
+  .btn-primary {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+    border: none;
+  }
+  .btn-danger {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+    border: none;
   }
 </style>
 </head>
-<body>
-  <div class="wrap">
-    <header>
+<body class="p-4 sm:p-6 md:p-8">
+  <!-- Container chính của ứng dụng, căn giữa và giới hạn chiều rộng trên desktop -->
+  <div class="max-w-7xl mx-auto">
+    <header class="flex items-center gap-4 mb-6 md:mb-8">
       <div>
-        <h1>Mail 10 phút — mail.tm (Demo)</h1>
-        <p class="lead">Email tạm — tự tạo, lưu local, tự đổi sau 10 phút. Không cần server.</p>
+        <h1 class="text-2xl font-bold text-white">Mail 10 phút — mail.tm (Demo)</h1>
+        <p class="text-sm text-muted-text mt-1">Email tạm — tự tạo, lưu local, tự đổi sau 10 phút. Không cần server.</p>
       </div>
     </header>
 
-    <div class="top-card">
-      <div class="email-box">
-        <input id="emailInput" type="text" readonly placeholder="Nhấn 'Tạo mới' để tạo email" />
-        <button id="btnCopy">Sao chép</button>
-        <button id="btnNew" class="btn-primary">Tạo mới</button>
-        <div class="small">Hết hạn trong <span id="countdown">—</span></div>
+    <!-- Thẻ top-card chứa ô nhập email và các nút điều khiển -->
+    <div class="bg-card-dark p-4 rounded-xl shadow-lg border border-gray-800 flex flex-col md:flex-row items-start md:items-center gap-4 md:gap-6">
+      <!-- Khu vực nhập email và các nút chính -->
+      <div class="flex-1 w-full md:w-auto flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
+        <!-- Ô nhập email giờ có thể tự điều chỉnh kích thước, tránh tràn trên di động -->
+        <input id="emailInput" type="text" readonly placeholder="Nhấn 'Tạo mới' để tạo email" class="flex-1 w-full min-w-0 bg-transparent border border-gray-700 text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-accent" />
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+            <button id="btnCopy" class="bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Sao chép</button>
+            <button id="btnNew" class="btn-primary text-white font-semibold py-2 px-4 rounded-lg transition-shadow duration-200 shadow-md hover:shadow-lg">Tạo mới</button>
+        </div>
+        <div class="text-sm text-muted-text mt-2 sm:mt-0 whitespace-nowrap">Hết hạn trong <span id="countdown" class="font-medium text-white">—</span></div>
       </div>
 
-      <div class="controls">
-        <div class="row">
-          <label class="tiny">Auto refresh</label>
-          <select id="autoRef" title="Tự động lấy inbox">
+      <!-- Khu vực các nút điều khiển phụ -->
+      <div class="flex flex-col sm:flex-row items-center justify-end gap-3 mt-4 md:mt-0">
+        <div class="flex items-center gap-2 text-sm text-muted-text">
+          <label class="whitespace-nowrap">Auto refresh</label>
+          <select id="autoRef" title="Tự động lấy inbox" class="bg-gray-800 border border-gray-700 text-white rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent">
             <option value="0">Tắt</option>
             <option value="5">5s</option>
             <option value="10" selected>10s</option>
@@ -81,41 +101,49 @@
             <option value="60">60s</option>
           </select>
         </div>
-        <div class="row">
-          <button id="btnRefresh">Làm mới</button>
-          <button id="btnForceNew" class="btn-danger">Force mới</button>
+        <div class="flex items-center gap-2">
+          <button id="btnRefresh" class="bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Làm mới</button>
+          <button id="btnForceNew" class="btn-danger text-white font-semibold py-2 px-4 rounded-lg transition-shadow duration-200 shadow-md hover:shadow-lg">Force mới</button>
         </div>
       </div>
     </div>
 
-    <div class="layout">
-      <div class="panel">
-        <div class="flex-between">
-          <div class="row"><div class="badge">Hộp thư</div><div class="tiny" id="emailStatus">—</div></div>
-          <div class="tiny">Số thư: <span id="countNum">0</span></div>
+    <!-- Bố cục chính với 2 cột trên desktop và 1 cột trên di động -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+      <!-- Panel Hộp thư đến (chiếm 1/3 trên desktop) -->
+      <div class="bg-card-dark p-4 rounded-xl shadow-lg border border-gray-800 md:col-span-1">
+        <div class="flex justify-between items-center mb-4">
+          <div class="flex items-center gap-2">
+            <span class="bg-gray-800 text-white text-sm font-medium px-2.5 py-1.5 rounded-full">Hộp thư</span>
+            <div id="emailStatus" class="text-sm text-muted-text">—</div>
+          </div>
+          <div class="text-sm text-muted-text">Số thư: <span id="countNum" class="font-medium text-white">0</span></div>
         </div>
-        <hr style="border:none;height:8px;margin:8px 0;background:transparent" />
-        <div class="inbox-list" id="msgList">
-          <div class="tiny" id="emptyHint">Chưa có thư — gửi mail vào địa chỉ của bạn rồi nhấn "Làm mới".</div>
+        
+        <!-- Danh sách thư đến, có thể cuộn -->
+        <div class="inbox-list overflow-y-auto max-h-[calc(100vh-28rem)] space-y-2 pr-2" id="msgList">
+          <div id="emptyHint" class="text-sm text-muted-text text-center py-4">Chưa có thư — gửi mail vào địa chỉ của bạn rồi nhấn "Làm mới".</div>
         </div>
       </div>
-
-      <div class="panel viewer">
-        <div>
-          <div class="meta" id="meta">Chưa chọn thư</div>
-          <div class="row" style="margin-top:8px;gap:6px">
-            <button id="btnOpenRaw">Xem raw</button>
-            <button id="btnOpenIframe">Xem HTML (safe)</button>
+      
+      <!-- Panel Xem nội dung thư (chiếm 2/3 trên desktop) -->
+      <div class="bg-card-dark p-4 rounded-xl shadow-lg border border-gray-800 md:col-span-2 flex flex-col">
+        <div class="flex flex-col gap-2 mb-4">
+          <div id="meta" class="text-sm text-muted-text">Chưa chọn thư</div>
+          <div class="flex items-center gap-2">
+            <button id="btnOpenRaw" class="bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors duration-200">Xem raw</button>
+            <button id="btnOpenIframe" class="bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors duration-200">Xem HTML (safe)</button>
           </div>
         </div>
-        <div class="body" id="content">
-          <div class="tiny muted">Chọn 1 thư để xem nội dung</div>
+        <!-- Khu vực hiển thị nội dung thư, có thể cuộn -->
+        <div id="content" class="flex-1 bg-gray-800 p-4 rounded-lg text-sm overflow-y-auto">
+          <div class="text-muted-text">Chọn 1 thư để xem nội dung</div>
         </div>
       </div>
     </div>
 
-    <footer>
-      <div class="tiny">Lưu ý: demo dùng <strong>mail.tm</strong>. API có thể giới hạn request. Không dùng cho thông tin quan trọng.</div>
+    <footer class="mt-6 text-center text-xs text-muted-text">
+      <div>Lưu ý: demo dùng <strong>mail.tm</strong>. API có thể giới hạn request. Không dùng cho thông tin quan trọng.</div>
     </footer>
   </div>
 
@@ -166,6 +194,7 @@ let timers = {
   autoRefresh: null
 };
 
+// Hàm lưu trạng thái vào localStorage
 function saveState(){
   localStorage.setItem(LS_KEY, JSON.stringify({
     address: state.address,
@@ -176,6 +205,7 @@ function saveState(){
   }));
 }
 
+// Hàm tải trạng thái từ localStorage
 function loadState(){
   const raw = localStorage.getItem(LS_KEY);
   if(!raw) return false;
@@ -212,7 +242,7 @@ function renderEmailEmpty(){
   stopCountdown();
   state.messages = [];
   renderList();
-  el.content.innerHTML = '<div class="tiny">Chưa có email</div>';
+  el.content.innerHTML = '<div class="text-muted-text">Chưa có email</div>';
   el.countNum.textContent = '0';
 }
 
@@ -223,7 +253,7 @@ function startCountdown(){
     const rem = state.expiresAt - Date.now();
     if(rem <= 0){
       el.countdown.textContent = 'Đã hết hạn';
-      // auto-generate new
+      // Tự động tạo email mới khi hết hạn
       createOrRenew(true);
       return;
     }
@@ -286,7 +316,7 @@ async function createAccountAttempt(){
 }
 
 async function createOrRenew(force=false){
-  // if existing and not expired and not force -> keep
+  // nếu email còn hiệu lực và không ép buộc tạo mới thì không làm gì
   if(!force && state.address && state.expiresAt > Date.now()){
     console.log('still valid, skipping create');
     return;
@@ -298,19 +328,28 @@ async function createOrRenew(force=false){
     state.token = acc.token;
     state.createdAt = Date.now();
     state.expiresAt = Date.now() + EXPIRE_MS;
-    saveState();
+    saveState(); // Lưu trạng thái mới vào localStorage
     renderEmail();
     await fetchInbox();
     return true;
   }catch(e){
     console.error('Tạo tài khoản lỗi:', e);
-    alert('Không tạo được email mới. Kiểm tra kết nối hoặc API bị giới hạn.');
+    const customAlert = document.createElement('div');
+    customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+    customAlert.innerHTML = `
+      <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
+        <h3 class="text-lg font-bold mb-2">Lỗi</h3>
+        <p class="text-sm">${escapeHtml('Không tạo được email mới. Vui lòng kiểm tra kết nối hoặc API bị giới hạn.')}</p>
+        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
+      </div>
+    `;
+    document.body.appendChild(customAlert);
     return false;
   }
 }
 
 async function ensureToken(){
-  // If token empty try to login using stored password
+  // Nếu token trống, thử đăng nhập lại bằng mật khẩu đã lưu
   if(state.token) return true;
   if(!state.address || !state.password) return false;
   try{
@@ -319,7 +358,7 @@ async function ensureToken(){
       body: JSON.stringify({address: state.address, password: state.password})
     });
     state.token = tokenRes.token;
-    saveState();
+    saveState(); // Cập nhật token mới
     return true;
   }catch(e){
     console.warn('re-login failed', e);
@@ -337,10 +376,10 @@ async function fetchInbox(){
     renderList();
   }catch(e){
     console.error('fetchInbox error', e);
-    // try re-login once
+    // thử đăng nhập lại 1 lần nếu lỗi
     const relog = await ensureToken();
     if(relog) return fetchInbox();
-    el.msgList.innerHTML = `<div class="tiny">Lỗi khi lấy inbox: ${e.message}</div>`;
+    el.msgList.innerHTML = `<div class="text-sm text-muted-text text-center py-4">Lỗi khi lấy inbox: ${escapeHtml(e.message)}</div>`;
   }
 }
 
@@ -356,9 +395,11 @@ function renderList(){
   el.countNum.textContent = String(list.length);
   list.forEach(m=>{
     const div = document.createElement('div');
-    div.className = 'msg' + (state.selectedId === m.id ? ' active' : '');
-    div.innerHTML = `<h4>${escapeHtml(m.from && m.from.address ? m.from.address : '(unknown)')} <span class="tiny" style="margin-left:8px;color:var(--muted)">${escapeHtml(m.subject||'(No subject)')}</span></h4>
-                     <p class="tiny">${escapeHtml(m.intro || '')} <span class="tiny" style="float:right;color:var(--muted)">ID:${m.id}</span></p>`;
+    div.className = `p-3 rounded-lg cursor-pointer transition-colors duration-150 ${state.selectedId === m.id ? 'bg-blue-900 border border-blue-600' : 'bg-gray-800 hover:bg-gray-700'}`;
+    div.innerHTML = `
+      <h4 class="text-sm font-semibold text-white truncate">${escapeHtml(m.subject||'(No subject)')}</h4>
+      <p class="text-xs text-muted-text mt-1 truncate">${escapeHtml(m.from && m.from.address ? m.from.address : '(unknown)')} · ${escapeHtml(new Date(m.createdAt).toLocaleString())}</p>
+    `;
     div.onclick = ()=> selectMessage(m.id);
     el.msgList.appendChild(div);
   });
@@ -366,38 +407,49 @@ function renderList(){
 
 async function selectMessage(id){
   state.selectedId = id;
-  renderList(); // highlight
-  // fetch read endpoint
+  renderList(); // đánh dấu thư đã chọn
+  // lấy nội dung thư
   try{
     const m = await apiFetch(`/messages/${id}`, { headers: { Authorization: 'Bearer ' + state.token }});
     showMessage(m);
   }catch(e){
     console.error('read msg error', e);
-    el.content.innerHTML = `<div class="tiny">Lỗi khi đọc thư: ${e.message}</div>`;
+    el.content.innerHTML = `<div class="text-sm text-muted-text">Lỗi khi đọc thư: ${escapeHtml(e.message)}</div>`;
   }
 }
 
 function showMessage(m){
   el.meta.innerHTML = `<strong>From:</strong> ${escapeHtml(m.from && m.from.address)} &nbsp; <strong>To:</strong> ${escapeHtml(m.to && m.to.address)} <br>
-                      <span class="tiny">${escapeHtml(new Date(m.createdAt).toLocaleString())} · ID:${m.id}</span>`;
-  // Clear content area
+                      <span class="text-xs text-muted-text">${escapeHtml(new Date(m.createdAt).toLocaleString())} · ID:${m.id}</span>`;
+  // Xóa nội dung cũ
   el.content.innerHTML = '';
-  // If htmlBody exists, render iframe sandboxed to avoid executing scripts
+  // Nếu có nội dung HTML, hiển thị trong iframe an toàn
   if(m.html){
     const iframe = document.createElement('iframe');
     iframe.style.width = '100%';
     iframe.style.minHeight = '220px';
+    iframe.style.height = '100%';
     iframe.style.border = 'none';
-    // sandbox deny scripts -- allow styling/images; remove "allow-scripts" for safety
+    iframe.style.backgroundColor = 'transparent';
     iframe.setAttribute('sandbox', '');
-    // use srcdoc to put html content
-    // small sanitization: remove <script> tags
     const safeHtml = String(m.html).replace(/<script[\s\S]*?<\/script>/gi, '');
-    iframe.srcdoc = safeHtml;
+    iframe.srcdoc = `
+      <!doctype html>
+      <html>
+      <head>
+        <style>
+          body { font-family: 'Inter', sans-serif; color: #e6eef6; background-color: transparent; padding: 1rem; }
+          img { max-width: 100%; height: auto; }
+        </style>
+      </head>
+      <body>${safeHtml}</body>
+      </html>
+    `;
     el.content.appendChild(iframe);
   } else {
-    // fallback to text body
+    // Nếu không có HTML, hiển thị nội dung văn bản thuần
     const pre = document.createElement('pre');
+    pre.className = "whitespace-pre-wrap break-words font-sans text-white";
     pre.textContent = m.text || '(No content)';
     el.content.appendChild(pre);
   }
@@ -408,66 +460,123 @@ function escapeHtml(s){
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 }
 
-// Event handlers
+// Xử lý sự kiện
 el.btnNew.addEventListener('click', ()=> createOrRenew(true));
 el.btnForceNew.addEventListener('click', ()=>{
-  if(confirm('Force tạo email mới — email hiện tại (nếu có) sẽ không còn dùng được nữa. Tiếp tục?')){
+  const customConfirm = document.createElement('div');
+  customConfirm.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+  customConfirm.innerHTML = `
+    <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
+      <h3 class="text-lg font-bold mb-2">Xác nhận</h3>
+      <p class="text-sm">Force tạo email mới — email hiện tại (nếu có) sẽ không còn dùng được nữa. Tiếp tục?</p>
+      <div class="flex gap-2 mt-4">
+        <button onclick="this.closest('.fixed').remove()" class="bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg flex-1">Hủy</button>
+        <button id="confirmForceNewBtn" class="btn-danger text-white font-medium py-2 px-4 rounded-lg flex-1">Tiếp tục</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(customConfirm);
+
+  document.getElementById('confirmForceNewBtn').addEventListener('click', () => {
+    customConfirm.remove();
     clearState();
     createOrRenew(true);
-  }
-});
-el.btnCopy.addEventListener('click', ()=>{
-  if(!state.address) return alert('Chưa có email');
-  navigator.clipboard.writeText(state.address).then(()=> {
-    const t = document.createElement('span'); t.textContent='Đã sao chép'; t.style.color='var(--success)'; t.style.marginLeft='8px';
-    el.btnCopy.parentNode.insertBefore(t, el.btnCopy.nextSibling);
-    setTimeout(()=>t.remove(),1500);
   });
 });
+
+el.btnCopy.addEventListener('click', ()=>{
+  if(!state.address) {
+    const customAlert = document.createElement('div');
+    customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+    customAlert.innerHTML = `
+      <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
+        <h3 class="text-lg font-bold mb-2">Thông báo</h3>
+        <p class="text-sm">Chưa có email để sao chép.</p>
+        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
+      </div>
+    `;
+    document.body.appendChild(customAlert);
+    return;
+  }
+  // Sử dụng document.execCommand thay vì navigator.clipboard để tương thích tốt hơn với iframe
+  const tempInput = document.createElement('input');
+  document.body.appendChild(tempInput);
+  tempInput.value = state.address;
+  tempInput.select();
+  document.execCommand('copy');
+  document.body.removeChild(tempInput);
+
+  const t = document.createElement('span'); 
+  t.textContent='Đã sao chép'; 
+  t.className = 'text-success text-sm ml-2';
+  el.btnCopy.parentNode.insertBefore(t, el.btnCopy.nextSibling);
+  setTimeout(()=>t.remove(),1500);
+});
+
 el.btnRefresh.addEventListener('click', ()=> fetchInbox());
 el.autoRef.addEventListener('change', ()=>{
   const v = Number(el.autoRef.value);
   if(timers.autoRefresh){ clearInterval(timers.autoRefresh); timers.autoRefresh=null; }
   if(v > 0){
     timers.autoRefresh = setInterval(()=> {
-      // only fetch if email exists
       if(state.address) fetchInbox();
     }, v*1000);
   }
 });
 
-// Open raw text or iframe of selected message
+// Mở nội dung thư dạng raw hoặc iframe
 el.btnOpenRaw.addEventListener('click', ()=>{
-  if(!state.selectedId) return alert('Chưa chọn thư');
-  // open raw json in new tab
+  if(!state.selectedId) {
+    const customAlert = document.createElement('div');
+    customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+    customAlert.innerHTML = `
+      <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
+        <h3 class="text-lg font-bold mb-2">Thông báo</h3>
+        <p class="text-sm">Chưa chọn thư để xem.</p>
+        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
+      </div>
+    `;
+    document.body.appendChild(customAlert);
+    return;
+  }
   window.open(`${API}/messages/${state.selectedId}`, '_blank');
 });
 el.btnOpenIframe.addEventListener('click', ()=>{
-  if(!state.selectedId) return alert('Chưa chọn thư');
-  // re-select to render again (iframe)
+  if(!state.selectedId) {
+    const customAlert = document.createElement('div');
+    customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
+    customAlert.innerHTML = `
+      <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
+        <h3 class="text-lg font-bold mb-2">Thông báo</h3>
+        <p class="text-sm">Chưa chọn thư để xem.</p>
+        <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
+      </div>
+    `;
+    document.body.appendChild(customAlert);
+    return;
+  }
   selectMessage(state.selectedId);
 });
 
-// init
+// Khởi chạy ứng dụng
 (async function init(){
-  const ok = loadState();
+  const ok = loadState(); // Tải trạng thái từ localStorage
   if(ok){
-    // if expired -> create new
+    // nếu đã hết hạn, tạo mới
     if(state.expiresAt <= Date.now()){
-      // expired: create new
       await createOrRenew(true);
     } else {
-      // try to re-login to refresh token if missing
+      // nếu còn hiệu lực, cố gắng đăng nhập lại để lấy token mới (nếu cần) và tải inbox
       await ensureToken();
       renderEmail();
       await fetchInbox();
     }
   } else {
-    // no stored -> create new account
+    // Nếu chưa có dữ liệu lưu, tạo tài khoản mới
     await createOrRenew(true);
   }
 
-  // set autoRef default (value already set in DOM)
+  // Bắt đầu tự động làm mới theo lựa chọn đã lưu trong DOM
   const v = Number(el.autoRef.value);
   if(v>0){
     timers.autoRefresh = setInterval(()=> { if(state.address) fetchInbox(); }, v*1000);
