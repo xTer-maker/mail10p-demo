@@ -12,6 +12,7 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
   tailwind.config = {
+    darkMode: 'class', // Bật chế độ dark mode bằng class 'dark'
     theme: {
       extend: {
         fontFamily: {
@@ -25,6 +26,9 @@
           'glass': 'rgba(255, 255, 255, 0.03)',
           'success': '#22c55e',
           'danger': '#ef4444',
+          'bg-light': '#f3f4f6',
+          'card-light': '#ffffff',
+          'text-light': '#1f2937',
           'primary-gradient': 'linear-gradient(90deg, #3b82f6, #60a5fa)',
           'danger-gradient': 'linear-gradient(90deg, #ef4444, #f87171)',
         }
@@ -33,13 +37,45 @@
   }
 </script>
 <style>
+  /* Định nghĩa các biến CSS cho light/dark mode */
+  :root {
+    --bg-color: #0b1220;
+    --card-color: #0f1724;
+    --text-color: #e6eef6;
+    --muted-text-color: #9aa4b2;
+    --border-color: #1f2937;
+  }
+  .light {
+    --bg-color: #f3f4f6;
+    --card-color: #ffffff;
+    --text-color: #1f2937;
+    --muted-text-color: #6b7280;
+    --border-color: #e5e7eb;
+  }
+
   /* Thiết lập font và màu nền */
   body {
-    background: linear-gradient(180deg, #071021 0%, #041022 100%);
-    color: #e6eef6;
+    background-color: var(--bg-color);
+    color: var(--text-color);
     min-height: 100vh;
     font-family: 'Inter', system-ui, 'Segoe UI', Roboto, Arial, sans-serif;
+    transition: background-color 0.3s, color 0.3s;
   }
+  .bg-card-dark { background-color: var(--card-color); }
+  .text-muted-text { color: var(--muted-text-color); }
+  .border-gray-800 { border-color: var(--border-color); }
+  .bg-gray-800 { background-color: var(--border-color); }
+  .inbox-list div { background-color: var(--card-color); border: 1px solid var(--border-color); }
+  .inbox-list div.selected { background-color: #1e3a8a; border-color: #3b82f6; }
+  .inbox-list div:hover { background-color: #1f2937; }
+  .light .inbox-list div { background-color: #f9fafb; border-color: #e5e7eb; }
+  .light .inbox-list div.selected { background-color: #dbeafe; border-color: #60a5fa; }
+  .light .inbox-list div:hover { background-color: #f3f4f6; }
+  .bg-gray-800:hover { background-color: var(--muted-text-color); }
+  .light .bg-gray-800 { background-color: #e5e7eb; color: #1f2937; }
+  .light .bg-gray-800:hover { background-color: #d1d5db; }
+  .bg-gray-900 { background-color: var(--card-color); }
+
   /* Cải thiện thanh cuộn cho các khu vực cuộn */
   ::-webkit-scrollbar {
     width: 6px;
@@ -55,6 +91,13 @@
   ::-webkit-scrollbar-thumb:hover {
     background-color: rgba(255, 255, 255, 0.2);
   }
+  .light ::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+  }
+  .light ::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+  }
+
   /* Thiết lập kiểu nút với gradient tùy chỉnh */
   .btn-primary {
     background: linear-gradient(90deg, #3b82f6, #60a5fa);
@@ -64,15 +107,60 @@
     background: linear-gradient(90deg, #ef4444, #f87171);
     border: none;
   }
+
+  /* CSS cho nút chuyển đổi giao diện (theme toggle) */
+  #theme-toggle:checked ~ .dot {
+    transform: translateX(100%);
+    background-color: #3b82f6;
+  }
+  #theme-toggle:checked ~ .block {
+    background-color: #bfdbfe;
+  }
+
+  .dark #theme-toggle:checked ~ .block {
+    background-color: #3b82f6;
+  }
+  .dark #theme-toggle:checked ~ .dot {
+    background-color: white;
+  }
 </style>
 </head>
-<body class="p-4 sm:p-6 md:p-8">
+<body class="p-4 sm:p-6 md:p-8 dark">
   <!-- Container chính của ứng dụng, căn giữa và giới hạn chiều rộng trên desktop -->
   <div class="max-w-7xl mx-auto">
-    <header class="flex items-center gap-4 mb-6 md:mb-8">
+    <header class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6 md:mb-8">
       <div>
-        <h1 class="text-2xl font-bold text-white">Mail 10 phút — mail.tm (Demo)</h1>
-        <p class="text-sm text-muted-text mt-1">Email tạm — tự tạo, lưu local, tự đổi sau 10 phút. Không cần server.</p>
+        <!-- Cập nhật tiêu đề: xóa "- mail.tm" -->
+        <h1 id="h1_title" class="text-2xl font-bold text-white">Mail 10 phút (Demo)</h1>
+        <p id="p_description" class="text-sm text-muted-text mt-1">Email tạm — tự tạo, lưu local, tự đổi sau 10 phút. Không cần server.</p>
+      </div>
+      <!-- Khu vực các nút điều khiển giao diện và ngôn ngữ -->
+      <div class="flex items-center gap-4 mt-4 md:mt-0">
+        <div class="flex items-center gap-2">
+          <label id="theme-label" class="theme-switch flex items-center cursor-pointer">
+            <div class="relative">
+              <input type="checkbox" id="theme-toggle" class="sr-only" />
+              <div class="block bg-gray-600 w-10 h-6 rounded-full"></div>
+              <div class="dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition"></div>
+            </div>
+          </label>
+        </div>
+        <div class="flex items-center gap-2">
+          <!-- Đã thêm id="lang-label" vào đây -->
+          <label id="lang-label" class="text-sm text-muted-text">Ngôn ngữ</label>
+          <select id="langSelector" class="bg-card-dark border border-gray-700 text-white rounded-lg px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-accent">
+            <option value="vi">Tiếng Việt</option>
+            <option value="en">English</option>
+            <option value="ja">日本語</option>
+            <option value="ru">Русский</option>
+            <option value="fr">Français</option>
+            <option value="ko">한국어</option>
+            <option value="zh">中文</option>
+            <option value="hi">हिन्दी</option>
+            <option value="ar">العربية</option>
+            <option value="es">Español</option>
+          </select>
+        </div>
       </div>
     </header>
 
@@ -86,13 +174,13 @@
             <button id="btnCopy" class="bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Sao chép</button>
             <button id="btnNew" class="btn-primary text-white font-semibold py-2 px-4 rounded-lg transition-shadow duration-200 shadow-md hover:shadow-lg">Tạo mới</button>
         </div>
-        <div class="text-sm text-muted-text mt-2 sm:mt-0 whitespace-nowrap">Hết hạn trong <span id="countdown" class="font-medium text-white">—</span></div>
+        <div id="countdown-wrapper" class="text-sm text-muted-text mt-2 sm:mt-0 whitespace-nowrap"><span id="countdown-label">Hết hạn trong</span> <span id="countdown" class="font-medium text-white">—</span></div>
       </div>
 
       <!-- Khu vực các nút điều khiển phụ -->
       <div class="flex flex-col sm:flex-row items-center justify-end gap-3 mt-4 md:mt-0">
         <div class="flex items-center gap-2 text-sm text-muted-text">
-          <label class="whitespace-nowrap">Auto refresh</label>
+          <label id="autoRef-label" class="whitespace-nowrap">Auto refresh</label>
           <select id="autoRef" title="Tự động lấy inbox" class="bg-gray-800 border border-gray-700 text-white rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-accent">
             <option value="0">Tắt</option>
             <option value="5">5s</option>
@@ -114,18 +202,18 @@
       <div class="bg-card-dark p-4 rounded-xl shadow-lg border border-gray-800 md:col-span-1">
         <div class="flex justify-between items-center mb-4">
           <div class="flex items-center gap-2">
-            <span class="bg-gray-800 text-white text-sm font-medium px-2.5 py-1.5 rounded-full">Hộp thư</span>
+            <span id="inbox-title" class="bg-gray-800 text-white text-sm font-medium px-2.5 py-1.5 rounded-full">Hộp thư</span>
             <div id="emailStatus" class="text-sm text-muted-text">—</div>
           </div>
-          <div class="text-sm text-muted-text">Số thư: <span id="countNum" class="font-medium text-white">0</span></div>
+          <div id="count-wrapper" class="text-sm text-muted-text"><span id="count-label">Số thư:</span> <span id="countNum" class="font-medium text-white">0</span></div>
         </div>
-        
+
         <!-- Danh sách thư đến, có thể cuộn -->
         <div class="inbox-list overflow-y-auto max-h-[calc(100vh-28rem)] space-y-2 pr-2" id="msgList">
           <div id="emptyHint" class="text-sm text-muted-text text-center py-4">Chưa có thư — gửi mail vào địa chỉ của bạn rồi nhấn "Làm mới".</div>
         </div>
       </div>
-      
+
       <!-- Panel Xem nội dung thư (chiếm 2/3 trên desktop) -->
       <div class="bg-card-dark p-4 rounded-xl shadow-lg border border-gray-800 md:col-span-2 flex flex-col">
         <div class="flex flex-col gap-2 mb-4">
@@ -137,13 +225,19 @@
         </div>
         <!-- Khu vực hiển thị nội dung thư, có thể cuộn -->
         <div id="content" class="flex-1 bg-gray-800 p-4 rounded-lg text-sm overflow-y-auto">
-          <div class="text-muted-text">Chọn 1 thư để xem nội dung</div>
+          <div id="content-hint" class="text-muted-text">Chọn 1 thư để xem nội dung</div>
         </div>
       </div>
     </div>
 
-    <footer class="mt-6 text-center text-xs text-muted-text">
-      <div>Lưu ý: demo dùng <strong>mail.tm</strong>. API có thể giới hạn request. Không dùng cho thông tin quan trọng.</div>
+    <!-- Cập nhật footer theo yêu cầu của bạn -->
+    <footer class="mt-6 text-center text-xs text-muted-text space-y-1">
+      <div>
+        <span id="footer-contact">Mail: trannguyen200829@gmail.com</span> <span id="footer-note">(Liên hệ nếu lỗi)</span>
+      </div>
+      <div>
+        <span id="footer-warning">Không dùng cho thông tin quan trọng</span>
+      </div>
     </footer>
   </div>
 
@@ -151,7 +245,7 @@
 /*
   Mail 10 phút - single file
   - Dùng mail.tm API
-  - Lưu local: {address,password,createdAt,expiresAt,token}
+  - Lưu local: {address,password,createdAt,expiresAt,token,theme,lang}
   - Tự tạo mới sau EXPIRE_MS
   - Auto-refresh inbox
   - Hiển thị mail HTML trong iframe (sandbox, no scripts)
@@ -160,6 +254,360 @@
 const API = 'https://api.mail.tm';
 const EXPIRE_MS = 10 * 60 * 1000; // 10 phút
 const LS_KEY = 'temp_mail_tm_v1';
+
+// Đối tượng chứa các chuỗi dịch thuật
+const translations = {
+  vi: {
+    h1_title: 'Mail 10 phút (Demo)',
+    p_description: 'Email tạm — tự tạo, lưu local, tự đổi sau 10 phút. Không cần server.',
+    email_placeholder: "Nhấn 'Tạo mới' để tạo email",
+    btnCopy: 'Sao chép',
+    btnNew: 'Tạo mới',
+    countdown_label: 'Hết hạn trong',
+    autoRef_label: 'Auto refresh',
+    btnRefresh: 'Làm mới',
+    btnForceNew: 'Force mới',
+    inbox_title: 'Hộp thư',
+    count_label: 'Số thư:',
+    emptyHint: 'Chưa có thư — gửi mail vào địa chỉ của bạn rồi nhấn "Làm mới".',
+    meta_hint: 'Chưa chọn thư',
+    btnOpenRaw: 'Xem raw',
+    btnOpenIframe: 'Xem HTML (safe)',
+    content_hint: 'Chọn 1 thư để xem nội dung',
+    status_created: 'Tạo:',
+    alert_no_email: 'Chưa có email để sao chép.',
+    alert_copied: 'Đã sao chép',
+    alert_error_title: 'Lỗi',
+    alert_error_msg: 'Không tạo được email mới. Vui lòng kiểm tra kết nối hoặc API bị giới hạn.',
+    confirm_title: 'Xác nhận',
+    confirm_msg: 'Force tạo email mới — email hiện tại (nếu có) sẽ không còn dùng được nữa. Tiếp tục?',
+    confirm_cancel: 'Hủy',
+    confirm_continue: 'Tiếp tục',
+    theme_dark: 'Tối',
+    theme_light: 'Sáng',
+    lang_label: 'Ngôn ngữ',
+    no_content: '(Không có nội dung)',
+    no_subject: '(Không có tiêu đề)',
+    footer_contact_text: 'Mail: trannguyen200829@gmail.com',
+    footer_contact_note: '(Liên hệ nếu lỗi)',
+    footer_warning: 'Không dùng cho thông tin quan trọng',
+  },
+  en: {
+    h1_title: '10 Minute Mail (Demo)',
+    p_description: 'Temporary email — self-created, local storage, auto-renew after 10 mins. No server needed.',
+    email_placeholder: "Click 'Create New' to generate email",
+    btnCopy: 'Copy',
+    btnNew: 'Create New',
+    countdown_label: 'Expires in',
+    autoRef_label: 'Auto refresh',
+    btnRefresh: 'Refresh',
+    btnForceNew: 'Force New',
+    inbox_title: 'Inbox',
+    count_label: 'Messages:',
+    emptyHint: "No messages yet — send an email to your address and click 'Refresh'.",
+    meta_hint: 'No message selected',
+    btnOpenRaw: 'View raw',
+    btnOpenIframe: 'View HTML (safe)',
+    content_hint: 'Select a message to view its content',
+    status_created: 'Created:',
+    alert_no_email: 'No email to copy.',
+    alert_copied: 'Copied!',
+    alert_error_title: 'Error',
+    alert_error_msg: 'Could not create new email. Please check your connection or if the API is limited.',
+    confirm_title: 'Confirmation',
+    confirm_msg: 'Forcing a new email will make the current email unusable. Continue?',
+    confirm_cancel: 'Cancel',
+    confirm_continue: 'Continue',
+    theme_dark: 'Dark',
+    theme_light: 'Light',
+    lang_label: 'Language',
+    no_content: '(No content)',
+    no_subject: '(No subject)',
+    footer_contact_text: 'Mail: trannguyen200829@gmail.com',
+    footer_contact_note: '(Contact if error)',
+    footer_warning: 'Do not use for important information',
+  },
+  ja: {
+    h1_title: '10分メール (デモ)',
+    p_description: '一時的なメール — 自己作成、ローカル保存、10分後に自動更新。サーバー不要。',
+    email_placeholder: "「新規作成」を押してメールアドレスを作成",
+    btnCopy: 'コピー',
+    btnNew: '新規作成',
+    countdown_label: '有効期限まで',
+    autoRef_label: '自動更新',
+    btnRefresh: '更新',
+    btnForceNew: '強制新規',
+    inbox_title: '受信箱',
+    count_label: 'メッセージ:',
+    emptyHint: "メッセージはありません — あなたのアドレスにメールを送信し、「更新」をクリックしてください。",
+    meta_hint: 'メッセージが選択されていません',
+    btnOpenRaw: 'Raw表示',
+    btnOpenIframe: 'HTML表示 (安全)',
+    content_hint: 'コンテンツを表示するにはメッセージを選択してください',
+    status_created: '作成:',
+    alert_no_email: 'コピーするメールアドレスがありません。',
+    alert_copied: 'コピーしました！',
+    alert_error_title: 'エラー',
+    alert_error_msg: '新しいメールを作成できませんでした。接続を確認するか、APIが制限されているか確認してください。',
+    confirm_title: '確認',
+    confirm_msg: '新しいメールを強制作成すると、現在のメールは使用できなくなります。続行しますか？',
+    confirm_cancel: 'キャンセル',
+    confirm_continue: '続行',
+    theme_dark: 'ダーク',
+    theme_light: 'ライト',
+    lang_label: '言語',
+    no_content: '(コンテンツなし)',
+    no_subject: '(件名なし)',
+    footer_contact_text: 'メール: trannguyen200829@gmail.com',
+    footer_contact_note: '(エラーの場合は連絡)',
+    footer_warning: '重要な情報には使用しないでください',
+  },
+  ru: {
+    h1_title: '10-минутная почта (Демо)',
+    p_description: 'Временный email — создается автоматически, сохраняется локально, автообновление через 10 минут. Сервер не требуется.',
+    email_placeholder: "Нажмите 'Создать', чтобы сгенерировать email",
+    btnCopy: 'Копировать',
+    btnNew: 'Создать',
+    countdown_label: 'Истекает через',
+    autoRef_label: 'Автообновление',
+    btnRefresh: 'Обновить',
+    btnForceNew: 'Создать новый',
+    inbox_title: 'Входящие',
+    count_label: 'Сообщения:',
+    emptyHint: "Сообщений нет — отправьте письмо на ваш адрес и нажмите 'Обновить'.",
+    meta_hint: 'Сообщение не выбрано',
+    btnOpenRaw: 'Посмотреть raw',
+    btnOpenIframe: 'Посмотреть HTML (безопасно)',
+    content_hint: 'Выберите сообщение для просмотра',
+    status_created: 'Создано:',
+    alert_no_email: 'Нет email для копирования.',
+    alert_copied: 'Скопировано!',
+    alert_error_title: 'Ошибка',
+    alert_error_msg: 'Не удалось создать новый email. Пожалуйста, проверьте ваше соединение или лимиты API.',
+    confirm_title: 'Подтверждение',
+    confirm_msg: 'Принудительное создание нового email сделает текущий email непригодным для использования. Продолжить?',
+    confirm_cancel: 'Отмена',
+    confirm_continue: 'Продолжить',
+    theme_dark: 'Темная',
+    theme_light: 'Светлая',
+    lang_label: 'Язык',
+    no_content: '(Нет содержимого)',
+    no_subject: '(Без темы)',
+    footer_contact_text: 'Почта: trannguyen200829@gmail.com',
+    footer_contact_note: '(Связаться в случае ошибки)',
+    footer_warning: 'Не используйте для важной информации',
+  },
+  fr: {
+    h1_title: 'Mail 10 minutes (Démo)',
+    p_description: 'Email temporaire — auto-créé, stockage local, auto-renouvellement après 10 min. Pas de serveur nécessaire.',
+    email_placeholder: "Cliquez sur 'Créer' pour générer un email",
+    btnCopy: 'Copier',
+    btnNew: 'Créer',
+    countdown_label: 'Expire dans',
+    autoRef_label: 'Auto-rafraîchissement',
+    btnRefresh: 'Rafraîchir',
+    btnForceNew: 'Forcer nouveau',
+    inbox_title: 'Boîte de réception',
+    count_label: 'Messages:',
+    emptyHint: "Aucun message — envoyez un email à votre adresse et cliquez sur 'Rafraîchir'.",
+    meta_hint: 'Aucun message sélectionné',
+    btnOpenRaw: 'Voir raw',
+    btnOpenIframe: 'Voir HTML (safe)',
+    content_hint: 'Sélectionnez un message pour voir son contenu',
+    status_created: 'Créé:',
+    alert_no_email: 'Aucun email à copier.',
+    alert_copied: 'Copié!',
+    alert_error_title: 'Erreur',
+    alert_error_msg: "Impossible de créer un nouvel email. Veuillez vérifier votre connexion ou si l'API est limitée.",
+    confirm_title: 'Confirmation',
+    confirm_msg: "Forcer un nouvel email rendra l'email actuel inutilisable. Continuer?",
+    confirm_cancel: 'Annuler',
+    confirm_continue: 'Continuer',
+    theme_dark: 'Sombre',
+    theme_light: 'Clair',
+    lang_label: 'Langue',
+    no_content: '(Aucun contenu)',
+    no_subject: '(Pas de sujet)',
+    footer_contact_text: 'Mail: trannguyen200829@gmail.com',
+    footer_contact_note: '(Contacter en cas d\'erreur)',
+    footer_warning: 'Ne pas utiliser pour des informations importantes',
+  },
+  ko: {
+    h1_title: '10분 이메일 (데모)',
+    p_description: '임시 이메일 — 자동 생성, 로컬 저장, 10분 후 자동 갱신. 서버 필요 없음.',
+    email_placeholder: "'새로 만들기'를 클릭하여 이메일 생성",
+    btnCopy: '복사',
+    btnNew: '새로 만들기',
+    countdown_label: '만료까지',
+    autoRef_label: '자동 새로고침',
+    btnRefresh: '새로고침',
+    btnForceNew: '강제 새로 만들기',
+    inbox_title: '받은 편지함',
+    count_label: '메시지:',
+    emptyHint: "메시지가 없습니다 — 주소로 이메일을 보내고 '새로고침'을 클릭하세요.",
+    meta_hint: '메시지가 선택되지 않았습니다',
+    btnOpenRaw: 'Raw 보기',
+    btnOpenIframe: 'HTML 보기 (안전)',
+    content_hint: '콘텐츠를 보려면 메시지를 선택하세요',
+    status_created: '생성:',
+    alert_no_email: '복사할 이메일이 없습니다.',
+    alert_copied: '복사되었습니다!',
+    alert_error_title: '오류',
+    alert_error_msg: '새 이메일을 만들 수 없습니다. 연결 상태를 확인하거나 API 제한을 확인하세요.',
+    confirm_title: '확인',
+    confirm_msg: '강제로 새 이메일을 만들면 현재 이메일은 사용할 수 없게 됩니다. 계속하시겠습니까?',
+    confirm_cancel: '취소',
+    confirm_continue: '계속',
+    theme_dark: '어둡게',
+    theme_light: '밝게',
+    lang_label: '언어',
+    no_content: '(내용 없음)',
+    no_subject: '(제목 없음)',
+    footer_contact_text: '메일: trannguyen200829@gmail.com',
+    footer_contact_note: '(오류 발생 시 문의)',
+    footer_warning: '중요한 정보에는 사용하지 마십시오',
+  },
+  zh: {
+    h1_title: '10分钟邮箱 (演示)',
+    p_description: '临时邮箱 — 自动创建，本地存储，10分钟后自动更新。无需服务器。',
+    email_placeholder: "点击'新建'以生成邮箱",
+    btnCopy: '复制',
+    btnNew: '新建',
+    countdown_label: '过期时间',
+    autoRef_label: '自动刷新',
+    btnRefresh: '刷新',
+    btnForceNew: '强制新建',
+    inbox_title: '收件箱',
+    count_label: '消息:',
+    emptyHint: "暂无消息 — 向您的地址发送邮件并点击'刷新'。",
+    meta_hint: '未选择消息',
+    btnOpenRaw: '查看原始',
+    btnOpenIframe: '查看HTML (安全)',
+    content_hint: '选择一条消息以查看其内容',
+    status_created: '创建:',
+    alert_no_email: '没有可复制的邮箱。',
+    alert_copied: '已复制！',
+    alert_error_title: '错误',
+    alert_error_msg: '无法创建新邮箱。请检查您的网络连接或API是否受限。',
+    confirm_title: '确认',
+    confirm_msg: '强制创建新邮箱将使当前邮箱无法使用。继续吗？',
+    confirm_cancel: '取消',
+    confirm_continue: '继续',
+    theme_dark: '深色',
+    theme_light: '浅色',
+    lang_label: '语言',
+    no_content: '(无内容)',
+    no_subject: '(无主题)',
+    footer_contact_text: '邮箱: trannguyen200829@gmail.com',
+    footer_contact_note: '(如遇错误请联系)',
+    footer_warning: '请勿用于重要信息',
+  },
+  hi: {
+    h1_title: '10 मिनट की मेल (डेमो)',
+    p_description: 'अस्थायी ईमेल — स्वतः-निर्मित, स्थानीय भंडारण, 10 मिनट के बाद स्वतः-नवीनीकरण। सर्वर की आवश्यकता नहीं।',
+    email_placeholder: "'नया बनाएं' पर क्लिक करके ईमेल जेनरेट करें",
+    btnCopy: 'कॉपी करें',
+    btnNew: 'नया बनाएं',
+    countdown_label: 'में समाप्त होगा',
+    autoRef_label: 'ऑटो रिफ्रेश',
+    btnRefresh: 'रिफ्रेश',
+    btnForceNew: 'जबरदस्ती नया बनाएं',
+    inbox_title: 'इनबॉक्स',
+    count_label: 'संदेश:',
+    emptyHint: "अभी तक कोई संदेश नहीं — अपने पते पर एक ईमेल भेजें और 'रिफ्रेश' पर क्लिक करें।",
+    meta_hint: 'कोई संदेश नहीं चुना गया',
+    btnOpenRaw: 'Raw देखें',
+    btnOpenIframe: 'HTML देखें (सुरक्षित)',
+    content_hint: 'सामग्री देखने के लिए एक संदेश चुनें',
+    status_created: 'बनाया गया:',
+    alert_no_email: 'कॉपी करने के लिए कोई ईमेल नहीं है।',
+    alert_copied: 'कॉपी किया गया!',
+    alert_error_title: 'त्रुटि',
+    alert_error_msg: 'नया ईमेल नहीं बना सका। कृपया अपना कनेक्शन या एपीआई सीमा जांचें।',
+    confirm_title: 'पुष्टि',
+    confirm_msg: 'जबरदस्ती नया ईमेल बनाने से वर्तमान ईमेल अनुपयोगी हो जाएगा। जारी रखें?',
+    confirm_cancel: 'रद्द करें',
+    confirm_continue: 'जारी रखें',
+    theme_dark: 'गहरा',
+    theme_light: 'हल्का',
+    lang_label: 'भाषा',
+    no_content: '(कोई सामग्री नहीं)',
+    no_subject: '(कोई विषय नहीं)',
+    footer_contact_text: 'मेल: trannguyen200829@gmail.com',
+    footer_contact_note: '(त्रुटि होने पर संपर्क करें)',
+    footer_warning: 'महत्वपूर्ण जानकारी के लिए उपयोग न करें',
+  },
+  ar: {
+    h1_title: 'بريد 10 دقائق (تجريبي)',
+    p_description: 'بريد إلكتروني مؤقت — يتم إنشاؤه تلقائيًا، تخزين محلي، تجديد تلقائي بعد 10 دقائق. لا يلزم وجود خادم.',
+    email_placeholder: "اضغط 'إنشاء جديد' لتوليد بريد إلكتروني",
+    btnCopy: 'نسخ',
+    btnNew: 'إنشاء جديد',
+    countdown_label: 'ينتهي في',
+    autoRef_label: 'تحديث تلقائي',
+    btnRefresh: 'تحديث',
+    btnForceNew: 'فرض جديد',
+    inbox_title: 'صندوق الوارد',
+    count_label: 'الرسائل:',
+    emptyHint: "لا توجد رسائل بعد — أرسل بريدًا إلكترونيًا إلى عنوانك واضغط على 'تحديث'.",
+    meta_hint: 'لم يتم تحديد رسالة',
+    btnOpenRaw: 'عرض raw',
+    btnOpenIframe: 'عرض HTML (آمن)',
+    content_hint: 'اختر رسالة لعرض محتواها',
+    status_created: 'تم الإنشاء:',
+    alert_no_email: 'لا يوجد بريد إلكتروني لنسخه.',
+    alert_copied: 'تم النسخ!',
+    alert_error_title: 'خطأ',
+    alert_error_msg: 'لا يمكن إنشاء بريد إلكتروني جديد. يرجى التحقق من اتصالك أو قيود API.',
+    confirm_title: 'تأكيد',
+    confirm_msg: 'فرض إنشاء بريد إلكتروني جديد سيجعل البريد الحالي غير صالح للاستخدام. هل تريد المتابعة؟',
+    confirm_cancel: 'إلغاء',
+    confirm_continue: 'متابعة',
+    theme_dark: 'داكن',
+    theme_light: 'فاتح',
+    lang_label: 'لغة',
+    no_content: '(لا يوجد محتوى)',
+    no_subject: '(لا يوجد موضوع)',
+    footer_contact_text: 'بريد: trannguyen200829@gmail.com',
+    footer_contact_note: '(للاتصال في حالة وجود خطأ)',
+    footer_warning: 'لا تستخدم للمعلومات الهامة',
+  },
+  es: {
+    h1_title: 'Correo de 10 minutos (Demo)',
+    p_description: 'Correo electrónico temporal — auto-creado, almacenamiento local, renovación automática después de 10 min. No se necesita servidor.',
+    email_placeholder: "Haz clic en 'Crear' para generar un correo electrónico",
+    btnCopy: 'Copiar',
+    btnNew: 'Crear',
+    countdown_label: 'Expira en',
+    autoRef_label: 'Actualización automática',
+    btnRefresh: 'Actualizar',
+    btnForceNew: 'Forzar nuevo',
+    inbox_title: 'Bandeja de entrada',
+    count_label: 'Mensajes:',
+    emptyHint: "Todavía no hay mensajes — envía un correo electrónico a tu dirección y haz clic en 'Actualizar'.",
+    meta_hint: 'Ningún mensaje seleccionado',
+    btnOpenRaw: 'Ver raw',
+    btnOpenIframe: 'Ver HTML (seguro)',
+    content_hint: 'Selecciona un mensaje para ver su contenido',
+    status_created: 'Creado:',
+    alert_no_email: 'No hay correo electrónico para copiar.',
+    alert_copied: '¡Copiado!',
+    alert_error_title: 'Error',
+    alert_error_msg: 'No se pudo crear un nuevo correo electrónico. Por favor, verifica tu conexión o si la API está limitada.',
+    confirm_title: 'Confirmación',
+    confirm_msg: 'Forzar un nuevo correo electrónico hará que el correo actual sea inutilizable. ¿Continuar?',
+    confirm_cancel: 'Cancelar',
+    confirm_continue: 'Continuar',
+    theme_dark: 'Oscuro',
+    theme_light: 'Claro',
+    lang_label: 'Idioma',
+    no_content: '(Sin contenido)',
+    no_subject: '(Sin asunto)',
+    footer_contact_text: 'Correo: trannguyen200829@gmail.com',
+    footer_contact_note: '(Contactar si hay un error)',
+    footer_warning: 'No usar para información importante',
+  },
+};
 
 const el = {
   emailInput: document.getElementById('emailInput'),
@@ -177,6 +625,21 @@ const el = {
   btnOpenRaw: document.getElementById('btnOpenRaw'),
   btnOpenIframe: document.getElementById('btnOpenIframe'),
   emptyHint: document.getElementById('emptyHint'),
+  h1_title: document.getElementById('h1_title'),
+  p_description: document.getElementById('p_description'),
+  countdown_label: document.getElementById('countdown-label'),
+  autoRef_label: document.getElementById('autoRef-label'),
+  inbox_title: document.getElementById('inbox-title'),
+  count_label: document.getElementById('count-label'),
+  meta_hint: document.getElementById('meta'),
+  content_hint: document.getElementById('content-hint'),
+  themeToggle: document.getElementById('theme-toggle'),
+  langSelector: document.getElementById('langSelector'),
+  langLabel: document.getElementById('lang-label'),
+  // Thêm các phần tử footer mới
+  footerContactText: document.getElementById('footer-contact'),
+  footerContactNote: document.getElementById('footer-note'),
+  footerWarning: document.getElementById('footer-warning'),
 };
 
 let state = {
@@ -186,7 +649,9 @@ let state = {
   createdAt: 0,
   expiresAt: 0,
   messages: [],
-  selectedId: null
+  selectedId: null,
+  theme: 'dark', // Thêm trạng thái theme
+  lang: 'vi'     // Thêm trạng thái ngôn ngữ
 };
 
 let timers = {
@@ -201,7 +666,9 @@ function saveState(){
     password: state.password,
     token: state.token,
     createdAt: state.createdAt,
-    expiresAt: state.expiresAt
+    expiresAt: state.expiresAt,
+    theme: state.theme,
+    lang: state.lang
   }));
 }
 
@@ -217,6 +684,8 @@ function loadState(){
       state.token = s.token || '';
       state.createdAt = s.createdAt;
       state.expiresAt = s.expiresAt;
+      state.theme = s.theme || 'dark'; // Tải theme, mặc định dark
+      state.lang = s.lang || 'vi';     // Tải ngôn ngữ, mặc định tiếng Việt
       return true;
     }
   }catch(e){ console.warn('ls parse error', e) }
@@ -225,13 +694,43 @@ function loadState(){
 
 function clearState(){
   localStorage.removeItem(LS_KEY);
-  state = { address:'', password:'', token:'', createdAt:0, expiresAt:0, messages:[], selectedId:null };
+  state = { address:'', password:'', token:'', createdAt:0, expiresAt:0, messages:[], selectedId:null, theme: 'dark', lang: 'vi' };
   renderEmailEmpty();
+}
+
+// Cập nhật tất cả các chuỗi văn bản trên giao diện
+function applyLanguage(){
+  const lang = state.lang;
+  const t = translations[lang];
+  if(!t) return;
+
+  el.h1_title.textContent = t.h1_title;
+  el.p_description.textContent = t.p_description;
+  el.emailInput.placeholder = t.email_placeholder;
+  el.btnCopy.textContent = t.btnCopy;
+  el.btnNew.textContent = t.btnNew;
+  el.countdown_label.textContent = t.countdown_label;
+  el.autoRef_label.textContent = t.autoRef_label;
+  el.btnRefresh.textContent = t.btnRefresh;
+  el.btnForceNew.textContent = t.btnForceNew;
+  el.inbox_title.textContent = t.inbox_title;
+  el.count_label.textContent = t.count_label;
+  el.emptyHint.textContent = t.emptyHint;
+  el.meta.textContent = t.meta_hint;
+  el.content.innerHTML = `<div id="content-hint" class="text-muted-text">${t.content_hint}</div>`;
+  el.btnOpenRaw.textContent = t.btnOpenRaw;
+  el.btnOpenIframe.textContent = t.btnOpenIframe;
+  el.langLabel.textContent = t.lang_label;
+
+  // Cập nhật các phần tử footer
+  el.footerContactText.textContent = t.footer_contact_text;
+  el.footerContactNote.textContent = t.footer_contact_note;
+  el.footerWarning.textContent = t.footer_warning;
 }
 
 function renderEmail(){
   el.emailInput.value = state.address || '';
-  el.emailStatus.textContent = state.address ? `Tạo: ${new Date(state.createdAt).toLocaleTimeString()} ` : '—';
+  el.emailStatus.textContent = state.address ? `${translations[state.lang].status_created} ${new Date(state.createdAt).toLocaleTimeString()}` : '—';
   startCountdown();
 }
 
@@ -242,7 +741,7 @@ function renderEmailEmpty(){
   stopCountdown();
   state.messages = [];
   renderList();
-  el.content.innerHTML = '<div class="text-muted-text">Chưa có email</div>';
+  el.content.innerHTML = `<div id="content-hint" class="text-muted-text">${translations[state.lang].content_hint}</div>`;
   el.countNum.textContent = '0';
 }
 
@@ -334,12 +833,13 @@ async function createOrRenew(force=false){
     return true;
   }catch(e){
     console.error('Tạo tài khoản lỗi:', e);
+    const t = translations[state.lang];
     const customAlert = document.createElement('div');
     customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
     customAlert.innerHTML = `
       <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
-        <h3 class="text-lg font-bold mb-2">Lỗi</h3>
-        <p class="text-sm">${escapeHtml('Không tạo được email mới. Vui lòng kiểm tra kết nối hoặc API bị giới hạn.')}</p>
+        <h3 class="text-lg font-bold mb-2">${t.alert_error_title}</h3>
+        <p class="text-sm">${escapeHtml(t.alert_error_msg)}</p>
         <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
       </div>
     `;
@@ -395,9 +895,10 @@ function renderList(){
   el.countNum.textContent = String(list.length);
   list.forEach(m=>{
     const div = document.createElement('div');
-    div.className = `p-3 rounded-lg cursor-pointer transition-colors duration-150 ${state.selectedId === m.id ? 'bg-blue-900 border border-blue-600' : 'bg-gray-800 hover:bg-gray-700'}`;
+    const isSelected = state.selectedId === m.id;
+    div.className = `p-3 rounded-lg cursor-pointer transition-colors duration-150 ${isSelected ? 'selected' : 'hover:bg-gray-700'}`;
     div.innerHTML = `
-      <h4 class="text-sm font-semibold text-white truncate">${escapeHtml(m.subject||'(No subject)')}</h4>
+      <h4 class="text-sm font-semibold text-white truncate">${escapeHtml(m.subject||translations[state.lang].no_subject)}</h4>
       <p class="text-xs text-muted-text mt-1 truncate">${escapeHtml(m.from && m.from.address ? m.from.address : '(unknown)')} · ${escapeHtml(new Date(m.createdAt).toLocaleString())}</p>
     `;
     div.onclick = ()=> selectMessage(m.id);
@@ -450,7 +951,7 @@ function showMessage(m){
     // Nếu không có HTML, hiển thị nội dung văn bản thuần
     const pre = document.createElement('pre');
     pre.className = "whitespace-pre-wrap break-words font-sans text-white";
-    pre.textContent = m.text || '(No content)';
+    pre.textContent = m.text || translations[state.lang].no_content;
     el.content.appendChild(pre);
   }
 }
@@ -463,18 +964,18 @@ function escapeHtml(s){
 // Xử lý sự kiện
 el.btnNew.addEventListener('click', ()=> createOrRenew(true));
 el.btnForceNew.addEventListener('click', ()=>{
+  const t = translations[state.lang];
   const customConfirm = document.createElement('div');
   customConfirm.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
   customConfirm.innerHTML = `
     <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
-      <h3 class="text-lg font-bold mb-2">Xác nhận</h3>
-      <p class="text-sm">Force tạo email mới — email hiện tại (nếu có) sẽ không còn dùng được nữa. Tiếp tục?</p>
+      <h3 class="text-lg font-bold mb-2">${t.confirm_title}</h3>
+      <p class="text-sm">${t.confirm_msg}</p>
       <div class="flex gap-2 mt-4">
-        <button onclick="this.closest('.fixed').remove()" class="bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg flex-1">Hủy</button>
-        <button id="confirmForceNewBtn" class="btn-danger text-white font-medium py-2 px-4 rounded-lg flex-1">Tiếp tục</button>
+        <button onclick="this.closest('.fixed').remove()" class="bg-gray-800 hover:bg-gray-700 text-white font-medium py-2 px-4 rounded-lg flex-1">${t.confirm_cancel}</button>
+        <button id="confirmForceNewBtn" class="btn-danger text-white font-medium py-2 px-4 rounded-lg flex-1">${t.confirm_continue}</button>
       </div>
-    </div>
-  `;
+    `;
   document.body.appendChild(customConfirm);
 
   document.getElementById('confirmForceNewBtn').addEventListener('click', () => {
@@ -486,12 +987,13 @@ el.btnForceNew.addEventListener('click', ()=>{
 
 el.btnCopy.addEventListener('click', ()=>{
   if(!state.address) {
+    const t = translations[state.lang];
     const customAlert = document.createElement('div');
     customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
     customAlert.innerHTML = `
       <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
         <h3 class="text-lg font-bold mb-2">Thông báo</h3>
-        <p class="text-sm">Chưa có email để sao chép.</p>
+        <p class="text-sm">${t.alert_no_email}</p>
         <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
       </div>
     `;
@@ -506,8 +1008,8 @@ el.btnCopy.addEventListener('click', ()=>{
   document.execCommand('copy');
   document.body.removeChild(tempInput);
 
-  const t = document.createElement('span'); 
-  t.textContent='Đã sao chép'; 
+  const t = document.createElement('span');
+  t.textContent=translations[state.lang].alert_copied;
   t.className = 'text-success text-sm ml-2';
   el.btnCopy.parentNode.insertBefore(t, el.btnCopy.nextSibling);
   setTimeout(()=>t.remove(),1500);
@@ -527,12 +1029,13 @@ el.autoRef.addEventListener('change', ()=>{
 // Mở nội dung thư dạng raw hoặc iframe
 el.btnOpenRaw.addEventListener('click', ()=>{
   if(!state.selectedId) {
+    const t = translations[state.lang];
     const customAlert = document.createElement('div');
     customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
     customAlert.innerHTML = `
       <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
         <h3 class="text-lg font-bold mb-2">Thông báo</h3>
-        <p class="text-sm">Chưa chọn thư để xem.</p>
+        <p class="text-sm">${t.meta_hint}</p>
         <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
       </div>
     `;
@@ -543,12 +1046,13 @@ el.btnOpenRaw.addEventListener('click', ()=>{
 });
 el.btnOpenIframe.addEventListener('click', ()=>{
   if(!state.selectedId) {
+    const t = translations[state.lang];
     const customAlert = document.createElement('div');
     customAlert.className = 'fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50';
     customAlert.innerHTML = `
       <div class="bg-gray-900 p-6 rounded-xl shadow-xl text-white max-w-sm">
         <h3 class="text-lg font-bold mb-2">Thông báo</h3>
-        <p class="text-sm">Chưa chọn thư để xem.</p>
+        <p class="text-sm">${t.meta_hint}</p>
         <button onclick="this.closest('.fixed').remove()" class="mt-4 bg-accent hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg w-full transition-colors duration-200">Đóng</button>
       </div>
     `;
@@ -558,10 +1062,35 @@ el.btnOpenIframe.addEventListener('click', ()=>{
   selectMessage(state.selectedId);
 });
 
+// Xử lý sự kiện chuyển đổi giao diện
+el.themeToggle.addEventListener('change', (e) => {
+  const theme = e.target.checked ? 'light' : 'dark';
+  state.theme = theme;
+  document.body.classList.toggle('light', theme === 'light');
+  document.body.classList.toggle('dark', theme === 'dark');
+  saveState();
+});
+
+// Xử lý sự kiện chọn ngôn ngữ
+el.langSelector.addEventListener('change', (e) => {
+  state.lang = e.target.value;
+  saveState();
+  applyLanguage();
+  renderEmail(); // Cập nhật lại trạng thái email để dịch chuỗi
+  renderList();
+});
+
 // Khởi chạy ứng dụng
 (async function init(){
   const ok = loadState(); // Tải trạng thái từ localStorage
   if(ok){
+    // Thiết lập theme và ngôn ngữ đã lưu
+    document.body.classList.toggle('light', state.theme === 'light');
+    document.body.classList.toggle('dark', state.theme === 'dark');
+    el.themeToggle.checked = state.theme === 'light';
+    el.langSelector.value = state.lang;
+    applyLanguage();
+
     // nếu đã hết hạn, tạo mới
     if(state.expiresAt <= Date.now()){
       await createOrRenew(true);
@@ -581,7 +1110,6 @@ el.btnOpenIframe.addEventListener('click', ()=>{
   if(v>0){
     timers.autoRefresh = setInterval(()=> { if(state.address) fetchInbox(); }, v*1000);
   }
-
 })();
 </script>
 </body>
