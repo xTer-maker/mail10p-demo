@@ -1,1 +1,1 @@
-# mail10p-demo
+# temporary-mail
